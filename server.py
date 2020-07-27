@@ -1,8 +1,9 @@
 import os
 import http.server
 import socketserver
-from sammy import sammy_ascii
+
 from http import HTTPStatus
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -12,9 +13,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(msg.encode())
 
 
-print(sammy_ascii)
-
 port = int(os.getenv('PORT', 80))
-print('Listening on port %s 🚀' % (port))
+print('Listening on port %s' % (port))
 httpd = socketserver.TCPServer(('', port), Handler)
 httpd.serve_forever()
