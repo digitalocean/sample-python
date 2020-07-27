@@ -2,8 +2,11 @@
 import os
 import http.server
 import socketserver
+import locale
 from sammy import sammy_ascii
 from http import HTTPStatus
+
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
