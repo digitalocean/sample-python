@@ -2,8 +2,7 @@ spec:
   name: sample-python
   services:
   - environment_slug: python
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/sample-python
+      repo_clone_url: https://github.com/digitalocean/sample-dockerfile.git
     name: sample-python
