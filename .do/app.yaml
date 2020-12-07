@@ -4,5 +4,5 @@ services:
   github:
     branch: master
     deploy_on_push: true
-    repo: digitalocean/sample-python
+    repo: https://github.com/natronpc/sample-python.git
   name: sample-python
