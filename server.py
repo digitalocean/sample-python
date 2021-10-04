@@ -12,8 +12,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         msg = 'Hello! you requested "{}"'.format(self.path)
         self.wfile.write(msg.encode())
 
-
 port = int(os.getenv('PORT', 80))
 print('Listening on port "{}"'.format(port))
 httpd = socketserver.TCPServer(('', port), Handler)
 httpd.serve_forever()
+
