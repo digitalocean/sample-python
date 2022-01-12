@@ -4,5 +4,5 @@ spec:
   - environment_slug: python
     git:
       branch: main
-      repo_clone_url: https://github.com/digitalocean/sample-python.git
+      repo_clone_url: https://github.com/ncannings/sample-python.git
     name: sample-python
