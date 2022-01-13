@@ -5,18 +5,18 @@ import sys
 import re
 import csv
 import os
-from decouple import config
+#from decouple import config
 from timeit import default_timer as timer
 
 
 # Get environment variables
-SPACES_KEY = config('SPACES_KEY')
-SPACES_SECRET = config('SPACES_SECRET')
-DB_USER = config('DB_USER');
-DB_PASS = config('DB_PASS');
-DB_HOST = config('DB_HOST');
-DATABASE = config('DATABASE');
-DB_PORT = config('DB_PORT');
+SPACES_KEY = os.environ.get('SPACES_KEY')
+SPACES_SECRET = os.environ.get('SPACES_SECRET')
+DB_USER = os.environ.get('DB_USER');
+DB_PASS = os.environ.get('DB_PASS');
+DB_HOST = os.environ.get('DB_HOST');
+DATABASE = os.environ.get('DATABASE');
+DB_PORT = os.environ.get('DB_PORT');
 
 
 conn = None
