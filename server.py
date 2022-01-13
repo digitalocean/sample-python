@@ -1,13 +1,49 @@
 from __future__ import unicode_literals
 import youtube_dl
+import psycopg2
 import sys
 import re
 import csv
 import os
+from decouple import config
 from timeit import default_timer as timer
-file_name=sys.argv[1]
 
 
+# Get environment variables
+SPACES_KEY = config('SPACES_KEY')
+SPACES_SECRET = config('SPACES_SECRET')
+DB_USER = config('DB_USER');
+DB_PASS = config('DB_PASS');
+DB_HOST = config('DB_HOST');
+DATABASE = config('DATABASE');
+DB_PORT = config('DB_PORT');
+
+
+conn = None
+try:
+    conn = psycopg2.connect(
+    host =DB_HOST,
+    port=DB_PORT,
+    user=DB_USER,
+    password=DB_PASS,
+    database=DATABASE,
+    sslmode="require")
+    cur = conn.cursor()
+    ## this allow the select statement to hold the queue so that there is no contention
+    cur.execute("update files set status=1 WHERE file = (SELECT file FROM files where status=0 ORDER BY file FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *;")
+    print("The number of rows: ", cur.rowcount)
+    if cur.rowcount ==0:
+        quit() ## and shutdown app!
+    row = cur.fetchone()
+    print(row[0])
+    conn.commit()
+    cur.close()
+except (Exception, psycopg2.DatabaseError) as error:
+    print(error)
+finally:
+    if conn is not None:
+        conn.close()
+quit()
 class MyLogger(object):
     def debug(self, msg):
         print("DEBUG "+msg)
