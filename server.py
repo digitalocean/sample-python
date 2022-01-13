@@ -131,7 +131,7 @@ class MyLogger(object):
     def debug(self, msg):
         print("DEBUG "+msg)
         #Writing video subtitles to: .*?\.(.*?)\.ttml
-        match=re.search('Writing video subtitles to: .*?'+file_sep+'.(.*?)\.ttml', msg)
+        match=re.search('Writing video subtitles to: .*?\.(.*?)\.ttml', msg)
         if match:
             lang=match.group(1)
             print ("MATCH "+  lang)
@@ -139,6 +139,7 @@ class MyLogger(object):
             ## wait until it is written
             upload_file_name=file_name+"."+lang+".ttml"
             upload_file_name_local=temp_dir+file_sep+upload_file_name
+            print (upload_file_name_local)
             write_to_csv(file_name,tracker,lang,views,likes,dislikes)
             count_file=1
             while (1):
