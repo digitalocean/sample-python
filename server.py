@@ -7,8 +7,9 @@ import csv
 import os
 #from decouple import config
 from timeit import default_timer as timer
+from dotenv import load_dotenv
 
-
+load_dotenv()
 # Get environment variables
 SPACES_KEY = os.environ.get('SPACES_KEY')
 SPACES_SECRET = os.environ.get('SPACES_SECRET')
