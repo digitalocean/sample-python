@@ -5,6 +5,7 @@ import sys
 import re
 import csv
 import os
+import boto3
 #from decouple import config
 from timeit import default_timer as timer
 from dotenv import load_dotenv
@@ -18,8 +19,15 @@ DB_PASS = os.environ.get('DB_PASS');
 DB_HOST = os.environ.get('DB_HOST');
 DATABASE = os.environ.get('DATABASE');
 DB_PORT = os.environ.get('DB_PORT');
-
-
+print ("debug")
+print (DB_USER)
+print (DB_PASS)
+print (DB_HOST)
+print (DB_PORT)
+print (DATABASE)
+print (SPACES_KEY)
+print (SPACES_SECRET)
+print ("debug_end")
 conn = None
 try:
     conn = psycopg2.connect(
@@ -44,6 +52,13 @@ except (Exception, psycopg2.DatabaseError) as error:
 finally:
     if conn is not None:
         conn.close()
+
+session = boto3.session.Session()
+client = session.client('s3',
+                        region_name='fra1',
+                        endpoint_url='https://fra1.digitaloceanspaces.com',
+                        aws_access_key_id=os.getenv('SPACES_KEY'),
+                        aws_secret_access_key=os.getenv('SPACES_SECRET'))
 quit()
 class MyLogger(object):
     def debug(self, msg):
