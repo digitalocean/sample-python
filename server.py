@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from cProfile import run
 import youtube_dl
 import psycopg2
 import logging
@@ -164,9 +165,9 @@ class MyLogger(object):
         match=re.search('Error 429',msg)
         if match:
             dirty_db()
-        ### hopefully reboot - Need to deploy first
-        time.sleep(60)
-        sys.exit()
+            ### hopefully reboot - Need to deploy first
+            time.sleep(60)
+            sys.exit()
 
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip)
@@ -277,6 +278,8 @@ ydl_opts_auto = {
 start_time = timer()
 counter=0
 runner=0
+run_time=2
+sleep_time=0
 with open(path_to_zip, newline = '') as files:    
     line_reader = csv.reader(files, delimiter='\t')
     for line in line_reader:
@@ -292,7 +295,13 @@ with open(path_to_zip, newline = '') as files:
         tracker=2
         if counter>0:
             end_time=timer()
-            print (str(counter)+". Current files per second: "+str((end_time-start_time)/counter))
+            run_time=(end_time-start_time)/counter
+            print (str(counter)+". Current files per second: "+str(run_time))
+            if run_time <2.6:
+                sleep_time=int(3-run_time)+1
+                print("SLEEP TIME UPDATED: "+str(sleep_time))
+            else:
+                sleep_time=0
         counter+=1
         file_name=line[0]
         views=line[1]
@@ -324,6 +333,5 @@ with open(path_to_zip, newline = '') as files:
             else:
                 print (collector+"failed to upload")
             collector=""
-            if os.name != 'nt':
-                time.sleep(1)        
+            time.sleep(sleep_time)        
             
