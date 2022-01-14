@@ -139,12 +139,13 @@ class MyLogger(object):
         match=re.search('Writing video subtitles to: .*?\.(.*?)\.ttml', msg)
         if match:
             lang=match.group(1)
-            print ("MATCH "+  lang)
+            print ("MATCH "+  lang + " - "+zip_file_name)
             global tracker
             ## wait until it is written
             upload_file_name=file_name+"."+lang+".ttml"
             upload_file_name_local=temp_dir+file_sep+upload_file_name
             print (upload_file_name_local)
+            global collector
             collector=upload_file_name_local
             count_file=1
             ## do not put upload here
@@ -271,7 +272,12 @@ with open(path_to_zip, newline = '') as files:
             if exists(collector):
                     upload_file(collector,"nhc-1",'subs/'+ntpath.basename(collector))
                     ## take out the trash
-                    os.remove(collector)
+                    try:
+                        print ("REMOVING " +collector)
+                        os.remove(collector)
+                    except OSError:
+                        print ("CANNOT REMOVE "+ collector)
+                    
             else:
                 print (collector+"failed to upload")
             collector=""        
