@@ -165,11 +165,7 @@ class MyLogger(object):
         if match:
             dirty_db()
         ### hopefully reboot
-        os.system('systemctl reboot -i')
-        print ("WAITING")
-        time.sleep(300)
-        print ("WAKING UP")
-        tracker=0
+        sys.exit()
 
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip)
@@ -250,7 +246,7 @@ def upload_file(file_name, bucket, object_name=None):
 ## mark the db as dirty before stopping
 
 def exit_handler(signum, stack_frame):
-    print('Termination event received: Updating DB')
+    print('Termination event received: Updating DB ' + external_ip)
     dirty_db()
     sys.exit()
 
