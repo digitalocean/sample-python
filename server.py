@@ -46,6 +46,8 @@ conn = None
 zip_file_name=""
 last_file=""
 file_sep='/'
+### quickest time in seconds the process should run
+min_run_time=3.5
 ### need a global variable to store these for update
 likes=0
 views=0
@@ -166,7 +168,7 @@ class MyLogger(object):
         if match:
             dirty_db()
             ### hopefully reboot - Need to deploy first
-            time.sleep(60)
+            time.sleep(360)
             sys.exit()
 
     def error(self, msg):
@@ -297,8 +299,8 @@ with open(path_to_zip, newline = '') as files:
             end_time=timer()
             run_time=(end_time-start_time)/counter
             print (str(counter)+". Current files per second: "+str(run_time))
-            if run_time <2.6:
-                sleep_time=int(3-run_time)+1
+            if run_time <min_run_time:
+                sleep_time=int(min_run_time-run_time)+1
                 print("SLEEP TIME UPDATED: "+str(sleep_time))
             else:
                 sleep_time=0
