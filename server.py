@@ -15,6 +15,11 @@ from botocore.exceptions import ClientError
 from timeit import default_timer as timer
 from dotenv import load_dotenv
 from os.path import exists
+import signal
+import sys
+import urllib.request
+
+external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 load_dotenv()
 # Get environment variables
@@ -62,7 +67,7 @@ while waiter==0:
         sslmode="require")
         cur = conn.cursor()
         ## this allow the select statement to hold the queue so that there is no contention
-        cur.execute("update files set status=1 WHERE file = (SELECT file FROM files where status=0 ORDER BY file FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *;")
+        cur.execute("update files set status=1 WHERE file = (SELECT file FROM files where status=0 or status=3 ORDER BY file FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *;")
         print("The number of rows found: ", cur.rowcount)
         if cur.rowcount ==0:
             quit() ## and shutdown app!
@@ -134,7 +139,7 @@ while waiter==0:
 
 class MyLogger(object):
     def debug(self, msg):
-        print("DEBUG "+msg)
+        print("DEBUG "+msg+ " "+ external_ip)
         #Writing video subtitles to: .*?\.(.*?)\.ttml
         match=re.search('Writing video subtitles to: .*?\.(.*?)\.ttml', msg)
         if match:
@@ -153,14 +158,43 @@ class MyLogger(object):
             write_to_csv(file_name,tracker,lang,views,likes,dislikes)
             tracker-=1
 
-    def warning(self, msg):
-        print("WARNING "+msg)
+def dirty_db():
+    try:
+            conn = psycopg2.connect(
+            host =DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DATABASE,
+            sslmode="require")
+            cur = conn.cursor()
+            ## this allow the select statement to hold the queue so that there is no contention
+            cur.execute("update files set status=3 WHERE file = %s",[zip_file_name])
+            conn.commit()
+            cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
 
-    def error(self, msg):
-        print("ERROR "+msg)
-        global tracker
-        write_to_csv(file_name,"0")
-        tracker=0
+def warning(self, msg):
+    print("WARNING "+msg+ " "+ external_ip)
+    match=re.search('Error 429')
+    if match:
+        dirty_db()
+    ### hopefully reboot
+    os.system('systemctl reboot -i')
+    print ("WAITING")
+    time.sleep(300)
+    print ("WAKING UP")
+    tracker=0
+
+def error(self, msg):
+    print("ERROR "+msg+ " "+ external_ip)
+    global tracker
+    write_to_csv(file_name,"0")
+    tracker=0
 
 def my_hook(d):
     if d['status'] == 'finished':
@@ -170,12 +204,12 @@ def my_hook(d):
 def write_to_csv(*args):
     try:
         conn = psycopg2.connect(
-        host =DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASS,
-        database=DATABASE,
-        sslmode="require")
+            host =DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DATABASE,
+            sslmode="require")
         cur = conn.cursor()
         sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes)
                 VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
@@ -211,7 +245,18 @@ def upload_file(file_name, bucket, object_name=None):
         logging.error(e)
         return False
     return True
-#--sub-format ttml --write-auto-sub --skip-download 
+
+## mark the db as dirty before stopping
+
+def exit_handler(signum, stack_frame):
+    print('Termination event received: Updating DB')
+    dirty_db()
+    sys.exit()
+
+
+signal.signal(signal.SIGINT, exit_handler)
+signal.signal(signal.SIGTERM, exit_handler)
+
 ydl_opts = {
     'writesubtitles': True,
     'skip_download': True,
