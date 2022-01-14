@@ -9,6 +9,7 @@ import os
 import boto3
 import time
 import tempfile
+import ntpath
 from botocore.exceptions import ClientError
 #from decouple import config
 from timeit import default_timer as timer
@@ -37,12 +38,14 @@ temp_dir=tempfile.gettempdir()
 print ("OS "+os.name)
 conn = None
 zip_file_name=""
+last_file=""
 file_sep='/'
 ### need a global variable to store these for update
 likes=0
 views=0
 dislikes=0
 waiter=0
+collector=""
 ## on windows machines, the file separator needs to be the other way round
 if os.name == 'nt':
     file_sep="\\"
@@ -60,11 +63,13 @@ while waiter==0:
         cur = conn.cursor()
         ## this allow the select statement to hold the queue so that there is no contention
         cur.execute("update files set status=1 WHERE file = (SELECT file FROM files where status=0 ORDER BY file FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *;")
-        print("The number of rows: ", cur.rowcount)
+        print("The number of rows found: ", cur.rowcount)
         if cur.rowcount ==0:
             quit() ## and shutdown app!
         row = cur.fetchone()
+        print ("STATUS:" + str(row[1]))
         zip_file_name=row[0]
+        last_file=row[2]
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -124,7 +129,7 @@ while waiter==0:
     else:
         waiter=1
         break
-
+            
 ## callback from youtube-dl
 
 class MyLogger(object):
@@ -140,16 +145,11 @@ class MyLogger(object):
             upload_file_name=file_name+"."+lang+".ttml"
             upload_file_name_local=temp_dir+file_sep+upload_file_name
             print (upload_file_name_local)
-            write_to_csv(file_name,tracker,lang,views,likes,dislikes)
+            collector=upload_file_name_local
             count_file=1
-            while (1):
-                if exists(upload_file_name_local):
-                    break
-                else:
-                    print (count_file)
-                    time.sleep(1)
-            print (upload_file_name)
-            upload_file(upload_file_name_local,"nhc-1",'subs/'+upload_file_name)
+            ## do not put upload here
+            # it creates a race condition               
+            write_to_csv(file_name,tracker,lang,views,likes,dislikes)
             tracker-=1
 
     def warning(self, msg):
@@ -177,9 +177,10 @@ def write_to_csv(*args):
         sslmode="require")
         cur = conn.cursor()
         sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes)
-                VALUES(%s,%s,%s,%s,%s,%s)"""
-        
+                VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
+        sql_1 = """UPDATE files SET last_file =%s where file=%s"""
         cur.execute(sql,args)
+        cur.execute(sql_1,[args[0],zip_file_name])
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -231,9 +232,19 @@ ydl_opts_auto = {
 
 start_time = timer()
 counter=0
+runner=0
 with open(path_to_zip, newline = '') as files:    
     line_reader = csv.reader(files, delimiter='\t')
     for line in line_reader:
+        ### is there already a file processed and we have marked the dirty as clean
+        if last_file:
+            if line[0] !=last_file and runner==0:
+                #print (line)
+                continue
+            elif line[0] == last_file:
+                runner =1
+                start_time = timer()
+                continue
         tracker=2
         if counter>0:
             end_time=timer()
@@ -255,5 +266,13 @@ with open(path_to_zip, newline = '') as files:
             if tracker==1:
                 ##no subs at all
                 write_to_csv(file_name,"0","none",0,0,0)
-            
+        if collector:
+            ### the file exists, just needs to finish downloading
+            if exists(collector):
+                    upload_file(collector,"nhc-1",'subs/'+ntpath.basename(collector))
+                    ## take out the trash
+                    os.remove(collector)
+            else:
+                print (collector+"failed to upload")
+            collector=""        
             
