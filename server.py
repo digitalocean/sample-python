@@ -158,6 +158,30 @@ class MyLogger(object):
             write_to_csv(file_name,tracker,lang,views,likes,dislikes)
             tracker-=1
 
+
+    def warning(self, msg):
+        print("WARNING "+msg+ " "+ external_ip)
+        match=re.search('Error 429')
+        if match:
+            dirty_db()
+        ### hopefully reboot
+        os.system('systemctl reboot -i')
+        print ("WAITING")
+        time.sleep(300)
+        print ("WAKING UP")
+        tracker=0
+
+    def error(self, msg):
+        print("ERROR "+msg+ " "+ external_ip)
+        global tracker
+        write_to_csv(file_name,"0")
+        tracker=0
+
+def my_hook(d):
+    if d['status'] == 'finished':
+        print('Done downloading, now converting ...')
+    print("HOOK: "+d)
+
 def dirty_db():
     try:
             conn = psycopg2.connect(
@@ -177,29 +201,6 @@ def dirty_db():
     finally:
         if conn is not None:
             conn.close()
-
-def warning(self, msg):
-    print("WARNING "+msg+ " "+ external_ip)
-    match=re.search('Error 429')
-    if match:
-        dirty_db()
-    ### hopefully reboot
-    os.system('systemctl reboot -i')
-    print ("WAITING")
-    time.sleep(300)
-    print ("WAKING UP")
-    tracker=0
-
-def error(self, msg):
-    print("ERROR "+msg+ " "+ external_ip)
-    global tracker
-    write_to_csv(file_name,"0")
-    tracker=0
-
-def my_hook(d):
-    if d['status'] == 'finished':
-        print('Done downloading, now converting ...')
-    print("HOOK: "+d)
 
 def write_to_csv(*args):
     try:
