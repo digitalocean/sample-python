@@ -164,7 +164,8 @@ class MyLogger(object):
         match=re.search('Error 429',msg)
         if match:
             dirty_db()
-        ### hopefully reboot
+        ### hopefully reboot - Need to deploy first
+        time.sleep(60)
         sys.exit()
 
     def error(self, msg):
