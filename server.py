@@ -161,7 +161,7 @@ class MyLogger(object):
 
     def warning(self, msg):
         print("WARNING "+msg+ " "+ external_ip)
-        match=re.search('Error 429')
+        match=re.search('Error 429',msg)
         if match:
             dirty_db()
         ### hopefully reboot
@@ -326,5 +326,7 @@ with open(path_to_zip, newline = '') as files:
                     
             else:
                 print (collector+"failed to upload")
-            collector=""        
+            collector=""
+            if os.name != 'nt':
+                time.sleep(1)        
             
