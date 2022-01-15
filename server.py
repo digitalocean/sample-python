@@ -193,10 +193,10 @@ class MyLogger(object):
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip)
         global tracker
-        match=re.search('Connection refused',msg)
+        match=re.search('Connection refused|4 bytes|Error 410|violation of protocol',msg)
         if match:
             write_to_csv(file_name,"3","0","0","0","0")
-            sys.exit()
+            sys.exit()  
         else:
             write_to_csv(file_name,"0","0","0","0","0")    
             tracker=0
