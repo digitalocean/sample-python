@@ -193,8 +193,13 @@ class MyLogger(object):
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip)
         global tracker
-        write_to_csv(file_name,"0")
-        tracker=0
+        match=re.search('Connection refused',msg)
+        if match:
+            write_to_csv(file_name,"3","0","0","0","0")
+            sys.exit()
+        else:
+            write_to_csv(file_name,"0","0","0","0","0")    
+            tracker=0
 
 def my_hook(d):
     if d['status'] == 'finished':
