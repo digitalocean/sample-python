@@ -6,9 +6,7 @@ import logging
 import sys
 import re
 import csv
-import os
 import boto3
-import time
 import tempfile
 import ntpath
 from botocore.exceptions import ClientError
@@ -19,6 +17,14 @@ from os.path import exists
 import signal
 import sys
 import urllib.request
+import socket
+import os
+import time
+# generate random integer values
+#from random import seed
+from random import randint
+# seed random number generator
+
 
 external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
@@ -31,6 +37,36 @@ DB_PASS = os.environ.get('DB_PASS');
 DB_HOST = os.environ.get('DB_HOST');
 DATABASE = os.environ.get('DATABASE');
 DB_PORT = os.environ.get('DB_PORT');
+PROXY = os.environ.get('PROXY');
+## start the proxy server and wait
+if PROXY:
+    port = str(randint(10000, 20000))
+    print("PORT "+port)
+
+
+    result = os.system('torpy_socks -p '+port+' --hops 2 &')
+    a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    location = ("127.0.0.1", int(port))
+
+
+    waiter=0
+    counter=0
+    while waiter==0:
+        result_of_check = a_socket.connect_ex(location)
+        if result_of_check == 0:
+            waiter=1
+            print("proxy up")
+        else:
+            counter+=1
+            print ("WAITING "+ str(counter))
+        if counter == 20:
+            quit()
+        else:
+            time.sleep(10)
+
+    a_socket.close()
+
+#socks5://localhost:11050
 temp_dir=tempfile.gettempdir()
 #print ("debug")
 #print (DB_USER)
@@ -266,6 +302,7 @@ ydl_opts = {
     'outtmpl': temp_dir+file_sep+'%(id)s.%(ext)s',
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
+    'proxy': PROXY
 }
 ydl_opts_auto = {
     'writeautomaticsub': True,
@@ -275,6 +312,7 @@ ydl_opts_auto = {
     'outtmpl': temp_dir+file_sep+'%(id)s.%(ext)s',
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
+    'proxy': PROXY
     }
 
 start_time = timer()

@@ -3,3 +3,4 @@ update_db.py
 test_downloads.py
 test_boto3.py
 *.pyc
+check_socket.py
