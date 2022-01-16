@@ -193,11 +193,13 @@ class MyLogger(object):
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip+" "+zip_file_name)
         global tracker
-        match=re.search('Connection refused|4 bytes|Error 410|violation of protocol',msg)
+        match=re.search('Connection refused|4 bytes|violation of protocol',msg)
+        match_1=re.search('Gone',msg)
         if match:
             dirty_db()
-           #write_to_csv(file_name,"3","0","0","0","0")
             sys.exit()  
+        elif match_1:
+            write_to_csv(file_name,"3","0","0","0","0")
         else:
             write_to_csv(file_name,"0","0","0","0","0")    
             tracker=0
