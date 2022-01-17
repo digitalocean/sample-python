@@ -21,6 +21,7 @@ import urllib.request
 import socket
 import os
 import time
+from subprocess import Popen
 # generate random integer values
 #from random import seed
 from random import randint
@@ -32,6 +33,7 @@ external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 load_dotenv()
 # Get environment variables
+WORKER_COUNT = os.environ.get('WORKER_COUNT') or 1
 SPACE = os.environ.get('SPACE')
 SPACES_KEY = os.environ.get('SPACES_KEY')
 SPACES_SECRET = os.environ.get('SPACES_SECRET')
@@ -41,9 +43,15 @@ DB_HOST = os.environ.get('DB_HOST');
 DATABASE = os.environ.get('DATABASE');
 DB_PORT = os.environ.get('DB_PORT');
 PROXY = os.environ.get('PROXY');
+### child gets the proxy port from the parent
+proxy_port=sys.argv[1] if len(sys.argv) > 1 else ""
+
+### add in the sys.argv function for the proxy port
 proxy=""
+port=0
+
 ## start the proxy server and wait
-if PROXY:    
+if PROXY and not proxy_port:    
     port = str(randint(10000, 20000))
     proxy="socks5://localhost:"+port
     print("PROXY "+proxy)
@@ -67,6 +75,9 @@ if PROXY:
                 quit()
             else:
                 time.sleep(10)
+elif PROXY and proxy_port:
+    proxy="socks5://localhost:"+proxy_port
+    print("PROXY STARTED BY PARENT"+proxy)    
 
 temp_dir=tempfile.gettempdir()
 #print ("debug")
@@ -93,6 +104,9 @@ dislikes=0
 waiter=0
 collector=""
 file_name=""
+parent=""
+my_pid=str(os.getpid())
+sub_pid=0
 ## on windows machines, the file separator needs to be the other way round
 if os.name == 'nt':
     file_sep="\\"
@@ -229,6 +243,21 @@ def my_hook(d):
         print('Done downloading, now converting ...')
     print("HOOK: "+d)
 
+def checkIfProcessRunning(processName):
+    '''
+    Check if there is any running process that contains the given name processName.
+    '''
+    #Iterate over the all the running process
+    for proc in psutil.process_iter():
+        try:
+            # Check if process name contains the given name string.
+            #print (proc.cmdline())
+            if processName in proc.cmdline():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False;
+
 def dirty_db():
     try:
             conn = psycopg2.connect(
@@ -298,12 +327,33 @@ def upload_file(file_name, bucket, object_name=None):
 
 def exit_handler(signum, stack_frame):
     print('Termination event received: Updating DB ' + external_ip)
+    ### I always know I am closing
     dirty_db()
+    ### Am I the parent?
+    if parent and signum !=14:
+        ###cleanup for regular termination
+        print(my_pid+' Termination by parent sent at :', time.ctime())
+        os.kill(sub_pid,14)  # kill the sub 
+        time.sleep(10) #wait for cleanup - PIPE?
+    elif parent:
+        ##cleanup for alarm
+        print("parent cleaning up")
+        pass
+    elif not parent and signum!=14:
+        ## regular termination of child
+        print(my_pid+' regular termination, sent term to parent at  :', time.ctime())
+        ### do cleanup and tell parent to close
+        os.kill(psutil.Process(os.getpid()).ppid(),14)
+    elif not parent:
+        ### I got a alarm, so the parent is terminating
+        print(my_pid+' cleaning up received at :', time.ctime())
+        ### cleanup code
     sys.exit()
 
 
 signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
+signal.signal(signal.SIGALRM, exit_handler)
 
 ydl_opts = {
     'writesubtitles': True,
@@ -325,6 +375,20 @@ ydl_opts_auto = {
     'progress_hooks': [my_hook],
     'proxy': proxy
     }
+
+count = sum(1 for proc in psutil.process_iter() if 'server.py' in proc.cmdline())
+if count >1:
+    print(str(count)+' I am the child '+my_pid)
+else:
+    print(str(count)+' I am the parent '+my_pid)
+    parent="true"
+    ### start the sub-process to use the same proxy server
+    p=Popen(['python','server.py', port])
+    sub_pid=p.pid
+while 1:
+    time.sleep(1)
+
+
 
 start_time = timer()
 counter=0
@@ -385,5 +449,4 @@ with open(path_to_zip, newline = '') as files:
                 print (collector+"failed to upload")
             collector=""
             time.sleep(sleep_time)        
-            ## trigger a commit
             
