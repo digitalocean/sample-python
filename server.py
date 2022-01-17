@@ -82,6 +82,7 @@ elif PROXY and proxy_port:
 temp_dir=tempfile.gettempdir()
 #print ("debug")
 print ("debug_space: "+SPACE)
+print ("debug_WORKER_COUNT: "+WORKER_COUNT)
 #print (DB_USER)
 #print (DB_PASS)
 #print (DB_HOST)
@@ -383,10 +384,10 @@ else:
     print(str(count)+' I am the parent '+my_pid)
     parent="true"
     ### start the sub-process to use the same proxy server
-    p=Popen(['python','server.py', port])
-    sub_pid=p.pid
-while 1:
-    time.sleep(1)
+    if WORKER_COUNT>1:
+        p=Popen(['python','server.py', port])
+        sub_pid=p.pid
+
 
 
 
