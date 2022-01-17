@@ -43,6 +43,7 @@ DB_HOST = os.environ.get('DB_HOST');
 DATABASE = os.environ.get('DATABASE');
 DB_PORT = os.environ.get('DB_PORT');
 PROXY = os.environ.get('PROXY');
+APP = os.environ.get('APP') or "local";
 ### child gets the proxy port from the parent
 proxy_port=sys.argv[1] if len(sys.argv) > 1 else ""
 
@@ -212,7 +213,7 @@ class MyLogger(object):
             count_file=1
             ## do not put upload here
             # it creates a race condition               
-            write_to_csv(file_name,tracker,lang,views,likes,dislikes,SPACE)
+            write_to_csv(file_name,tracker,lang,views,likes,dislikes,SPACE,APP)
             tracker-=1
 
 
@@ -234,9 +235,9 @@ class MyLogger(object):
             dirty_db()
             sys.exit()  
         elif match_1:
-            write_to_csv(file_name,"3","0","0","0","0","")
+            write_to_csv(file_name,"3","0","0","0","0","",APP)
         else:
-            write_to_csv(file_name,"0","0","0","0","0","")    
+            write_to_csv(file_name,"0","0","0","0","0","",APP)    
             tracker=0
 
 def my_hook(d):
@@ -289,8 +290,8 @@ def write_to_csv(*args):
             database=DATABASE,
             sslmode="require")
         cur = conn.cursor()
-        sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes,space)
-                VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
+        sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes,space,app)
+                VALUES(%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
         sql_1 = """UPDATE files SET last_file =%s where file=%s"""
         cur.execute(sql,args)
         cur.execute(sql_1,[args[0],zip_file_name])
@@ -434,7 +435,7 @@ with open(path_to_zip, newline = '') as files:
                 ydl.download(['https://www.youtube.com/watch?v='+file_name])
             if tracker==1:
                 ##no subs at all
-                write_to_csv(file_name,"0","none",0,0,0,"")
+                write_to_csv(file_name,"0","none",0,0,0,"",APP)
         if collector:
             ### the file exists, just needs to finish downloading
             if exists(collector):
