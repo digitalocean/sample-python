@@ -33,7 +33,7 @@ external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 load_dotenv()
 # Get environment variables
-WORKER_COUNT = os.environ.get('WORKER_COUNT') or 1
+WORKER_COUNT = os.environ.get('WORKER_COUNT') or "1"
 SPACE = os.environ.get('SPACE')
 SPACES_KEY = os.environ.get('SPACES_KEY')
 SPACES_SECRET = os.environ.get('SPACES_SECRET')
@@ -384,7 +384,7 @@ else:
     print(str(count)+' I am the parent '+my_pid)
     parent="true"
     ### start the sub-process to use the same proxy server
-    if WORKER_COUNT>1:
+    if int(WORKER_COUNT)>1:
         p=Popen(['python','server.py', port])
         sub_pid=p.pid
 
