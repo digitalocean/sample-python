@@ -18,9 +18,9 @@ from os.path import exists
 import signal
 import sys
 import urllib.request
-import socket
 import os
 import time
+import psutil
 from subprocess import Popen
 # generate random integer values
 #from random import seed
