@@ -9,6 +9,7 @@ import csv
 import boto3
 import tempfile
 import ntpath
+import requests
 from botocore.exceptions import ClientError
 #from decouple import config
 from timeit import default_timer as timer
@@ -27,9 +28,11 @@ from random import randint
 
 
 external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+#external_ip="8.8.8.8"
 
 load_dotenv()
 # Get environment variables
+SPACE = os.environ.get('SPACE')
 SPACES_KEY = os.environ.get('SPACES_KEY')
 SPACES_SECRET = os.environ.get('SPACES_SECRET')
 DB_USER = os.environ.get('DB_USER');
@@ -40,18 +43,34 @@ DB_PORT = os.environ.get('DB_PORT');
 PROXY = os.environ.get('PROXY');
 proxy=""
 ## start the proxy server and wait
-if PROXY:
-    
+if PROXY:    
     port = str(randint(10000, 20000))
     proxy="socks5://localhost:"+port
     print("PROXY "+proxy)
+    ## start proxy
     result = os.system('torpy_socks -p '+port+' --hops 2 &')
-    #a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ## this is awful - Wait for 60 seconds!
-    time.sleep(60)
-#socks5://localhost:11050
+    
+    waiter=0
+    counter=0
+
+    proxies = {'http': "socks5://127.0.0.1:"+port}
+
+    while waiter==0:
+        try: 
+            requests.get('http://google.com', proxies=proxies)
+            waiter=1
+            print("proxy up")
+        except requests.exceptions.RequestException as e:
+            counter+=1
+            print ("WAITING "+ str(counter))
+            if counter == 20:
+                quit()
+            else:
+                time.sleep(10)
+
 temp_dir=tempfile.gettempdir()
 #print ("debug")
+print ("debug_space: "+SPACE)
 #print (DB_USER)
 #print (DB_PASS)
 #print (DB_HOST)
@@ -73,6 +92,7 @@ views=0
 dislikes=0
 waiter=0
 collector=""
+file_name=""
 ## on windows machines, the file separator needs to be the other way round
 if os.name == 'nt':
     file_sep="\\"
@@ -166,7 +186,7 @@ class MyLogger(object):
         match=re.search('Writing video subtitles to: .*?\.(.*?)\.ttml', msg)
         if match:
             lang=match.group(1)
-            print ("MATCH "+  lang + " - "+zip_file_name)
+            print ("MATCH "+  lang + " - "+file_name)
             global tracker
             ## wait until it is written
             upload_file_name=file_name+"."+lang+".ttml"
@@ -177,12 +197,12 @@ class MyLogger(object):
             count_file=1
             ## do not put upload here
             # it creates a race condition               
-            write_to_csv(file_name,tracker,lang,views,likes,dislikes)
+            write_to_csv(file_name,tracker,lang,views,likes,dislikes,SPACE)
             tracker-=1
 
 
     def warning(self, msg):
-        print("WARNING "+msg+ " "+ external_ip)
+        print("WARNING "+msg+ " "+ external_ip+" "+file_name)
         match=re.search('Error 429',msg)
         if match:
             dirty_db()
@@ -191,7 +211,7 @@ class MyLogger(object):
             sys.exit()
 
     def error(self, msg):
-        print("ERROR "+msg+ " "+ external_ip+" "+zip_file_name)
+        print("ERROR "+msg+ " "+ external_ip+" "+file_name)
         global tracker
         match=re.search('Connection refused|4 bytes|violation of protocol',msg)
         match_1=re.search('Gone',msg)
@@ -199,9 +219,9 @@ class MyLogger(object):
             dirty_db()
             sys.exit()  
         elif match_1:
-            write_to_csv(file_name,"3","0","0","0","0")
+            write_to_csv(file_name,"3","0","0","0","0","")
         else:
-            write_to_csv(file_name,"0","0","0","0","0")    
+            write_to_csv(file_name,"0","0","0","0","0","")    
             tracker=0
 
 def my_hook(d):
@@ -239,8 +259,8 @@ def write_to_csv(*args):
             database=DATABASE,
             sslmode="require")
         cur = conn.cursor()
-        sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes)
-                VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
+        sql = """INSERT INTO youtube_subs(file, status, lang, views,likes,dislikes,space)
+                VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING"""
         sql_1 = """UPDATE files SET last_file =%s where file=%s"""
         cur.execute(sql,args)
         cur.execute(sql_1,[args[0],zip_file_name])
@@ -333,7 +353,7 @@ with open(path_to_zip, newline = '') as files:
                 print("SLEEP TIME UPDATED: "+str(sleep_time))
             else:
                 sleep_time=0
-        counter+=1
+        counter+=1        
         file_name=line[0]
         views=line[1]
         likes=line[2]
@@ -349,11 +369,11 @@ with open(path_to_zip, newline = '') as files:
                 ydl.download(['https://www.youtube.com/watch?v='+file_name])
             if tracker==1:
                 ##no subs at all
-                write_to_csv(file_name,"0","none",0,0,0)
+                write_to_csv(file_name,"0","none",0,0,0,"")
         if collector:
             ### the file exists, just needs to finish downloading
             if exists(collector):
-                    upload_file(collector,"nhc-1",'subs/'+ntpath.basename(collector))
+                    upload_file(collector,SPACE,'subs/'+ntpath.basename(collector))
                     ## take out the trash
                     try:
                         print ("REMOVING " +collector)
