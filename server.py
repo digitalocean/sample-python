@@ -52,7 +52,7 @@ if PROXY:
     
     waiter=0
     counter=0
-
+    #
     proxies = {'http': "socks5://127.0.0.1:"+port}
 
     while waiter==0:
