@@ -47,6 +47,9 @@ DATABASE = os.environ.get('DATABASE');
 DB_PORT = os.environ.get('DB_PORT');
 PROXY = os.environ.get('PROXY');
 APP = os.environ.get('APP') or "local";
+#test-double-3-qqy7q.ondigitalocean.app
+#assumes that app is "${APP_DOMAIN}"
+APP=APP.rsplit('-', 1)[0]
 ### child gets the proxy port from the parent
 proxy_port=sys.argv[1] if len(sys.argv) > 1 else ""
 
@@ -102,7 +105,7 @@ last_file=""
 file_sep='/'
 ### quickest time in seconds the process should run
 min_run_time=3
-min_run_time=min_run_time*int(WORKER_COUNT)
+#min_run_time=min_run_time*int(WORKER_COUNT)
 ### need a global variable to store these for update
 likes=0
 views=0
@@ -226,8 +229,9 @@ class MyLogger(object):
         match=re.search('Error 429',msg)
         if match:
             dirty_db()
-            ### hopefully reboot - Need to deploy first
-            time.sleep(360)
+            if not PROXY:
+            ### reboot - if it's not a proxy, wait to stop spamming the IP
+                time.sleep(360)
             sys.exit()
 
     def error(self, msg):
