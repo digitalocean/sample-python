@@ -27,9 +27,11 @@ from subprocess import Popen
 from random import randint
 # seed random number generator
 
-
-external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-#external_ip="8.8.8.8"
+try:
+    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+except urllib.URLError as e:
+    print (str(e.reason))
+    external_ip="No IP"
 
 load_dotenv()
 # Get environment variables
@@ -98,7 +100,8 @@ zip_file_name=""
 last_file=""
 file_sep='/'
 ### quickest time in seconds the process should run
-min_run_time=3.5
+min_run_time=3
+min_run_time=min_run_time*int(WORKER_COUNT)
 ### need a global variable to store these for update
 likes=0
 views=0
@@ -328,34 +331,54 @@ def upload_file(file_name, bucket, object_name=None):
 ## mark the db as dirty before stopping
 
 def exit_handler(signum, stack_frame):
-    print('Termination event received: Updating DB ' + external_ip)
-    ### I always know I am closing
+    print('Termination event received: Updating DB '+str(signum)+ " "+ my_pid)
     dirty_db()
-    ### Am I the parent?
-    if parent and signum !=14:
-        ###cleanup for regular termination
+    ### Am I the parent
+    if parent:
+        ###cleanup
         print(my_pid+' Termination by parent sent at :', time.ctime())
-        os.kill(sub_pid,14)  # kill the sub 
-        time.sleep(10) #wait for cleanup - PIPE?
-    elif parent:
-        ##cleanup for alarm
+        for pid in sub_pid:
+            if check_pid(pid):
+                os.kill(pid,14)  # kill the sub 
+                print ("Terminating "+str(pid))
+        count= proc_count()
+        timer=1
+        ## cleanup or ten seconds
+        while count>1:
+            time.sleep(1)
+            count= proc_count()
+            print ("WAIT COUNT: "+str(count))
+            count+=1
+            if timer ==10:
+                print ("TIMEOUT: "+str(count-1)+" subs left")
+                count=1
         print("parent cleaning up")
-        pass
-    elif not parent and signum!=14:
-        ## regular termination of child
-        print(my_pid+' regular termination, sent term to parent at  :', time.ctime())
-        ### do cleanup and tell parent to close
-        os.kill(psutil.Process(os.getpid()).ppid(),14)
     elif not parent:
-        ### I got a alarm, so the parent is terminating
-        print(my_pid+' cleaning up received at :', time.ctime())
-        ### cleanup code
+        ## regular termination
+        print(my_pid+' regular termination:', time.ctime())
+        ### do cleanup
+        if signum!=14:
+            print(my_pid+' regular termination sent to parent:', time.ctime())
+            os.kill(psutil.Process(os.getpid()).ppid(),14)
     sys.exit()
+    
+    
+def proc_count():
+    return sum(1 for proc in psutil.process_iter() if 'test_sig.py' in proc.cmdline())
 
+def check_pid(pid):        
+    """ Check For the existence of a unix pid. """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
+ 
 
 signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
-signal.signal(signal.SIGALRM, exit_handler)
+
 
 ydl_opts = {
     'writesubtitles': True,
@@ -378,17 +401,21 @@ ydl_opts_auto = {
     'proxy': proxy
     }
 
-count = sum(1 for proc in psutil.process_iter() if 'server.py' in proc.cmdline())
-if count >1:
-    print(str(count)+' I am the child '+my_pid)
-else:
-    print(str(count)+' I am the parent '+my_pid)
-    parent="true"
-    ### start the sub-process to use the same proxy server
-    if int(WORKER_COUNT)>1:
-        p=Popen(['python','server.py', port])
-        sub_pid=p.pid
-
+### go for the number of workers, less 1
+### could be done without this "if" but windows complains
+if int(WORKER_COUNT)>1:
+    count = sum(1 for proc in psutil.process_iter() if 'test_sig.py' in proc.cmdline())
+    if count >1:
+        print(str(count)+' I am the child '+my_pid)
+    else:
+        print(str(count)+' I am the parent '+my_pid)
+        parent="true"
+        for x in range(int(WORKER_COUNT)-1):
+    # Python >= 3.3 has subprocess.DEVNULL
+            p=Popen(['python','test_sig.py'])
+            sub_pid.append(p.pid)
+    while 1:
+        time.sleep(1)
 
 
 
