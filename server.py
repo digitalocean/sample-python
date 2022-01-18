@@ -21,6 +21,7 @@ import urllib.request
 import os
 import time
 import psutil
+import urllib.error
 from subprocess import Popen
 # generate random integer values
 #from random import seed
