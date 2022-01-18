@@ -228,11 +228,10 @@ class MyLogger(object):
         print("WARNING "+msg+ " "+ external_ip+" "+file_name)
         match=re.search('Error 429',msg)
         if match:
-            dirty_db()
             if not PROXY:
             ### reboot - if it's not a proxy, wait to stop spamming the IP
                 time.sleep(360)
-            sys.exit()
+            send_sig()
 
     def error(self, msg):
         print("ERROR "+msg+ " "+ external_ip+" "+file_name)
@@ -240,8 +239,7 @@ class MyLogger(object):
         match=re.search('Connection refused|4 bytes|violation of protocol',msg)
         match_1=re.search('Gone',msg)
         if match:
-            dirty_db()
-            sys.exit()  
+            send_sig()
         elif match_1:
             write_to_csv(file_name,"3","0","0","0","0","",APP)
         else:
@@ -381,6 +379,16 @@ def check_pid(pid):
         return False
     else:
         return True
+
+def send_sig():
+    ### need to trigger the cleanup of other workers
+    # unless it is only one worker
+    
+    if int(WORKER_COUNT)==1:
+        dirty_db()
+        sys.exit()
+    else:
+        os.kill(os.getpid(),signal.SIGTERM)
  
 
 signal.signal(signal.SIGINT, exit_handler)
