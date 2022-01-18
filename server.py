@@ -405,7 +405,7 @@ ydl_opts_auto = {
 ### go for the number of workers, less 1
 ### could be done without this "if" but windows complains
 if int(WORKER_COUNT)>1:
-    count = sum(1 for proc in psutil.process_iter() if 'server.py' in proc.cmdline())
+    count = proc_count()
     if count >1:
         print(str(count)+' I am the child '+my_pid)
     else:
@@ -413,7 +413,7 @@ if int(WORKER_COUNT)>1:
         parent="true"
         for x in range(int(WORKER_COUNT)-1):
     # Python >= 3.3 has subprocess.DEVNULL
-            p=Popen(['python','server.py'])
+            p=Popen(['python','server.py',port])
             sub_pid.append(p.pid)
     while 1:
         time.sleep(1)
