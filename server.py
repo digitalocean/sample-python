@@ -365,7 +365,7 @@ def exit_handler(signum, stack_frame):
     
     
 def proc_count():
-    return sum(1 for proc in psutil.process_iter() if 'test_sig.py' in proc.cmdline())
+    return sum(1 for proc in psutil.process_iter() if 'server.py' in proc.cmdline())
 
 def check_pid(pid):        
     """ Check For the existence of a unix pid. """
