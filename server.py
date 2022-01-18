@@ -415,10 +415,6 @@ if int(WORKER_COUNT)>1:
     # Python >= 3.3 has subprocess.DEVNULL
             p=Popen(['python','server.py',port])
             sub_pid.append(p.pid)
-    while 1:
-        time.sleep(1)
-
-
 
 start_time = timer()
 counter=0
