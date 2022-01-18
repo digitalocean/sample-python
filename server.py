@@ -339,7 +339,9 @@ def exit_handler(signum, stack_frame):
     print('Termination event received: Updating DB '+str(signum)+ " "+ my_pid)
     dirty_db()
     ### Am I the parent
-    if parent:
+    if parent=="none":
+        print('SINGLE WORKER Termination at :', time.ctime())
+    elif parent=="true":
         ###cleanup
         print(my_pid+' Termination by parent sent at :', time.ctime())
         for pid in sub_pid:
@@ -419,6 +421,8 @@ if int(WORKER_COUNT)>1:
     # Python >= 3.3 has subprocess.DEVNULL
             p=Popen(['python','server.py',port])
             sub_pid.append(p.pid)
+else:
+    parent="none"
 
 start_time = timer()
 counter=0
