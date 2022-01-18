@@ -30,7 +30,7 @@ from random import randint
 
 try:
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-except urllib.URLError as e:
+except urllib.error.URLError as e:
     print (str(e.reason))
     external_ip="No IP"
 
@@ -112,7 +112,7 @@ collector=""
 file_name=""
 parent=""
 my_pid=str(os.getpid())
-sub_pid=0
+sub_pid=[]
 ## on windows machines, the file separator needs to be the other way round
 if os.name == 'nt':
     file_sep="\\"
