@@ -14,4 +14,3 @@ pysocks ="*"
 psutil ="*"
 pymongo = {extras = ["srv"], version = "*"}
 bs4 ="*"
-string ="*"
