@@ -290,12 +290,12 @@ def extract_text(text_file):
     return transcript
 
 
-def write_to_mongo(file,text_file,lang):
+def write_to_mongo(file,text_file,lang,status):
     
     mydb = myclient["youtube"]
     mycol = mydb["subtitles"]
     output=extract_text(text_file)
-    mydict = { "id": file, "lang": lang, "text": output }
+    mydict = { "id": file, "lang": lang, "text": output, "status": status }
 
     mycol.insert_one(mydict)
     print( "Successfully extracted text from ttml file for " +file)
@@ -529,9 +529,9 @@ with open(path_to_zip, newline = '') as files:
         if collector:
             ### the file exists, just needs to finish downloading
             if exists(collector):
-                    write_to_mongo(file_name,collector,lang)
-                    upload_file(collector,SPACE,'subs/'+ntpath.basename(collector))
                     q=tracker+1
+                    write_to_mongo(file_name,collector,lang,q)
+                    upload_file(collector,SPACE,'subs/'+ntpath.basename(collector))
                     ## success
                     write_to_csv(file_name,q,lang,views,likes,dislikes,SPACE,APP)
                     ## take out the trash
