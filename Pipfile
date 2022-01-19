@@ -12,6 +12,6 @@ torpy ="*"
 requests ="*"
 pysocks ="*"
 psutil ="*"
-pymongo = {version ="*", extras = \["srv"\]}
+pymongo = {extras = ["srv"], version = "*"}
 bs4 ="*"
 string ="*"
