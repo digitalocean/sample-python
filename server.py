@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 from cProfile import run
+import datetime
+import string
 import youtube_dl
 import psycopg2
 import logging
@@ -23,6 +25,8 @@ import time
 import psutil
 import urllib.error
 from subprocess import Popen
+from bs4 import BeautifulSoup
+from pymongo import MongoClient
 # generate random integer values
 #from random import seed
 from random import randint
@@ -40,6 +44,9 @@ WORKER_COUNT = os.environ.get('WORKER_COUNT') or "1"
 SPACE = os.environ.get('SPACE')
 SPACES_KEY = os.environ.get('SPACES_KEY')
 SPACES_SECRET = os.environ.get('SPACES_SECRET')
+MONGO_USER = os.environ.get('MONGO_USER');
+MONGO_PASS = os.environ.get('MONGO_PASS');
+MONGO_CONNECT = os.environ.get('MONGO_CONNECT');
 DB_USER = os.environ.get('DB_USER');
 DB_PASS = os.environ.get('DB_PASS');
 DB_HOST = os.environ.get('DB_HOST');
@@ -53,9 +60,18 @@ APP=APP.rsplit('-', 1)[0]
 ### child gets the proxy port from the parent
 proxy_port=sys.argv[1] if len(sys.argv) > 1 else ""
 
+
 ### add in the sys.argv function for the proxy port
 proxy=""
 port=0
+
+## connect to mongo becuase it takes a lot of time
+myclient = MongoClient(MONGO_CONNECT,
+                     username=MONGO_USER,
+                     password=MONGO_PASS,
+                     authSource='admin',
+                     tls=True,
+                     tlsCAFile=r'mongo.crt')
 
 ## start the proxy server and wait
 if PROXY and not proxy_port:    
@@ -63,7 +79,7 @@ if PROXY and not proxy_port:
     proxy="socks5://localhost:"+port
     print("PROXY "+proxy)
     ## start proxy
-    result = os.system('torpy_socks -p '+port+' --hops 2 &')
+    result = os.system('torpy_socks -p '+port+' --hops 2 > proxy.txt 2>&1 &')
     
     waiter=0
     counter=0
@@ -112,6 +128,7 @@ views=0
 dislikes=0
 waiter=0
 collector=""
+lang=""
 file_name=""
 parent=""
 my_pid=str(os.getpid())
@@ -120,6 +137,8 @@ sub_pid=[]
 if os.name == 'nt':
     file_sep="\\"
 
+
+os.getcwd()
 #initial grab of file of file names
 while waiter==0:
     try:
@@ -208,6 +227,7 @@ class MyLogger(object):
         #Writing video subtitles to: .*?\.(.*?)\.ttml
         match=re.search('Writing video subtitles to: .*?\.(.*?)\.ttml', msg)
         if match:
+            global lang
             lang=match.group(1)
             print ("MATCH "+  lang + " - "+file_name)
             global tracker
@@ -220,7 +240,6 @@ class MyLogger(object):
             count_file=1
             ## do not put upload here
             # it creates a race condition               
-            write_to_csv(file_name,tracker,lang,views,likes,dislikes,SPACE,APP)
             tracker-=1
 
 
@@ -250,6 +269,36 @@ def my_hook(d):
     if d['status'] == 'finished':
         print('Done downloading, now converting ...')
     print("HOOK: "+d)
+
+def extract_text(text_file):
+    html = open(text_file, encoding="utf-8").read()
+    soup = BeautifulSoup(html,features="lxml")
+
+    transcript = ""
+
+    timestamp_by_word = []
+
+    for text in soup.find_all('p'):
+        timestamp_by_word.append(text.get_text())
+    transcript=' '.join(timestamp_by_word)
+    transcript=re.sub("\[.*?\]", "", transcript)
+    remove = string.punctuation
+    remove = remove.replace("-", "") # don't remove hyphens
+    pattern = r"[{}]".format(remove)
+    transcript=re.sub(pattern, "", transcript)
+    transcript=re.sub("\s+", " ", transcript)
+    return transcript
+
+
+def write_to_mongo(file,text_file,lang):
+    
+    mydb = myclient["youtube"]
+    mycol = mydb["subtitles"]
+    output=extract_text(text_file)
+    mydict = { "id": file, "lang": lang, "text": output }
+
+    mycol.insert_one(mydict)
+    print( "Successfully extracted text from ttml file for " +file)
 
 def checkIfProcessRunning(processName):
     '''
@@ -383,7 +432,7 @@ def check_pid(pid):
 def send_sig():
     ### need to trigger the cleanup of other workers
     # unless it is only one worker
-    
+
     if int(WORKER_COUNT)==1:
         dirty_db()
         sys.exit()
@@ -473,13 +522,18 @@ with open(path_to_zip, newline = '') as files:
             print ("NO HUMAN SUBS")
             with youtube_dl.YoutubeDL(ydl_opts_auto) as ydl:
                 ydl.download(['https://www.youtube.com/watch?v='+file_name])
+            ### tracker auto-increments down if successful on the upload    
             if tracker==1:
                 ##no subs at all
                 write_to_csv(file_name,"0","none",0,0,0,"",APP)
         if collector:
             ### the file exists, just needs to finish downloading
             if exists(collector):
+                    write_to_mongo(file_name,collector,lang)
                     upload_file(collector,SPACE,'subs/'+ntpath.basename(collector))
+                    q=tracker+1
+                    ## success
+                    write_to_csv(file_name,q,lang,views,likes,dislikes,SPACE,APP)
                     ## take out the trash
                     try:
                         print ("REMOVING " +collector)
@@ -489,6 +543,11 @@ with open(path_to_zip, newline = '') as files:
                     
             else:
                 print (collector+"failed to upload")
+                write_to_csv(file_name,"3","none",0,0,0,"",APP)
             collector=""
-            time.sleep(sleep_time)        
+            
+            time.sleep(sleep_time)
+        else:
+            ### file does not exist, maybe try again
+            write_to_csv(file_name,"3","none",0,0,0,"",APP)        
             
