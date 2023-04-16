@@ -6,7 +6,7 @@ from http import HTTPStatus
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self):
+    def __enter__(self):
         self.send_response(HTTPStatus.OK)
         self.end_headers()
         msg = 'Hello! you requested %s' % (self.path)
