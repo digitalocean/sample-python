@@ -1,8 +1,8 @@
-name: sample-python
+name: planetix-py-service
 services:
 - environment_slug: python
   github:
     branch: main
     deploy_on_push: true
-    repo: digitalocean/sample-python
-  name: sample-python
+    repo: NibiruSoftware/PlanetIX-Python-service
+  name: planetix-py-service

@@ -1,8 +1,8 @@
 spec:
-  name: sample-python
+  name: planetix-py-service
   services:
   - environment_slug: python
     git:
       branch: main
-      repo_clone_url: https://github.com/digitalocean/sample-python.git
-    name: sample-python
+      repo_clone_url: https://github.com/NibiruSoftware/PlanetIX-Python-service.git
+    name: planetix-py-service
