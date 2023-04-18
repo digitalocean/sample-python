@@ -1,6 +1,7 @@
 # Virtual environment
 venv/
 google_key.json
+.env
 # Compiled Python files
 __pycache__/
 *.pyc
