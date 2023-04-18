@@ -1,0 +1,17 @@
+name: my-python-app
+region: nyc
+services:
+  - environment_slug: python
+    github:
+      repo: myusername/my-python-app
+      branch: main
+    http_port: 8000
+    routes:
+      - path: /
+    envs:
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        scope: RUN_TIME
+      - key: MYSQL_HOST
+        scope: RUN_TIME
+      run_command: python bigquery_to_mysql.py
+      cron_spec: "0 */2 * * *"
