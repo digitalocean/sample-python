@@ -1,0 +1,366 @@
+Quest,name,Points,Roof,Total
+Mint Outlier Area,oa_minted,50,1,2200
+Mint Outlier Area,oa_minted,150,3,2200
+Mint Outlier Area,oa_minted,250,5,2200
+Mint Outlier Area,oa_minted,500,10,2200
+Mint Outlier Area,oa_minted,1250,25,2200
+Mint Common Area,ca_minted,60,1,2640
+Mint Common Area,ca_minted,180,3,2640
+Mint Common Area,ca_minted,300,5,2640
+Mint Common Area,ca_minted,600,10,2640
+Mint Common Area,ca_minted,1500,25,2640
+Mint Uncommon Area,ua_minted,70,1,3080
+Mint Uncommon Area,ua_minted,210,3,3080
+Mint Uncommon Area,ua_minted,350,5,3080
+Mint Uncommon Area,ua_minted,700,10,3080
+Mint Uncommon Area,ua_minted,1750,25,3080
+Mint Rare Area,ra_minted,80,1,3520
+Mint Rare Area,ra_minted,240,3,3520
+Mint Rare Area,ra_minted,400,5,3520
+Mint Rare Area,ra_minted,800,10,3520
+Mint Rare Area,ra_minted,2000,25,3520
+Mint Legendary Area,la_minted,90,1,3960
+Mint Legendary Area,la_minted,270,3,3960
+Mint Legendary Area,la_minted,450,5,3960
+Mint Legendary Area,la_minted,900,10,3960
+Mint Legendary Area,la_minted,2250,25,3960
+Mint Outlier Sector,os_minted,100,1,4400
+Mint Outlier Sector,os_minted,300,3,4400
+Mint Outlier Sector,os_minted,500,5,4400
+Mint Outlier Sector,os_minted,1000,10,4400
+Mint Outlier Sector,os_minted,2500,25,4400
+Mint Common Sector,cs_minted,110,1,4840
+Mint Common Sector,cs_minted,330,3,4840
+Mint Common Sector,cs_minted,550,5,4840
+Mint Common Sector,cs_minted,1100,10,4840
+Mint Common Sector,cs_minted,2750,25,4840
+Mint Uncommon Sector,us_minted,120,1,5280
+Mint Uncommon Sector,us_minted,360,3,5280
+Mint Uncommon Sector,us_minted,600,5,5280
+Mint Uncommon Sector,us_minted,1200,10,5280
+Mint Uncommon Sector,us_minted,3000,25,5280
+Mint Rare Sector,rs_minted,130,1,5720
+Mint Rare Sector,rs_minted,390,3,5720
+Mint Rare Sector,rs_minted,650,5,5720
+Mint Rare Sector,rs_minted,1300,10,5720
+Mint Rare Sector,rs_minted,3250,25,5720
+Mint Legendary Sector,ls_minted,140,1,6160
+Mint Legendary Sector,ls_minted,420,3,6160
+Mint Legendary Sector,ls_minted,700,5,6160
+Mint Legendary Sector,ls_minted,1400,10,6160
+Mint Legendary Sector,ls_minted,3500,25,6160
+Mint Outlier Zone,oz_minted,150,1,6600
+Mint Outlier Zone,oz_minted,450,3,6600
+Mint Outlier Zone,oz_minted,750,5,6600
+Mint Outlier Zone,oz_minted,1500,10,6600
+Mint Outlier Zone,oz_minted,3750,25,6600
+Mint Common Zone,cz_minted,160,1,7040
+Mint Common Zone,cz_minted,480,3,7040
+Mint Common Zone,cz_minted,800,5,7040
+Mint Common Zone,cz_minted,1600,10,7040
+Mint Common Zone,cz_minted,4000,25,7040
+Mint Uncommon Zone,uz_minted,170,1,7480
+Mint Uncommon Zone,uz_minted,510,3,7480
+Mint Uncommon Zone,uz_minted,850,5,7480
+Mint Uncommon Zone,uz_minted,1700,10,7480
+Mint Uncommon Zone,uz_minted,4250,25,7480
+Mint Rare Zone,rz_minted,180,1,7920
+Mint Rare Zone,rz_minted,540,3,7920
+Mint Rare Zone,rz_minted,900,5,7920
+Mint Rare Zone,rz_minted,1800,10,7920
+Mint Rare Zone,rz_minted,4500,25,7920
+Mint Legendary Zone,lz_minted,190,1,8360
+Mint Legendary Zone,lz_minted,570,3,8360
+Mint Legendary Zone,lz_minted,950,5,8360
+Mint Legendary Zone,lz_minted,1900,10,8360
+Mint Legendary Zone,lz_minted,4750,25,8360
+Mint Outlier Domain,od_minted,200,1,8800
+Mint Outlier Domain,od_minted,600,3,8800
+Mint Outlier Domain,od_minted,1000,5,8800
+Mint Outlier Domain,od_minted,2000,10,8800
+Mint Outlier Domain,od_minted,5000,25,8800
+Mint Common Domain,cd_minted,210,1,9240
+Mint Common Domain,cd_minted,630,3,9240
+Mint Common Domain,cd_minted,1050,5,9240
+Mint Common Domain,cd_minted,2100,10,9240
+Mint Common Domain,cd_minted,5250,25,9240
+Mint Uncommon Domain,ud_minted,220,1,9680
+Mint Uncommon Domain,ud_minted,660,3,9680
+Mint Uncommon Domain,ud_minted,1100,5,9680
+Mint Uncommon Domain,ud_minted,2200,10,9680
+Mint Uncommon Domain,ud_minted,5500,25,9680
+Mint Rare Domain,rd_minted,230,1,10120
+Mint Rare Domain,rd_minted,690,3,10120
+Mint Rare Domain,rd_minted,1150,5,10120
+Mint Rare Domain,rd_minted,2300,10,10120
+Mint Rare Domain,rd_minted,5750,25,10120
+Mint Legendary Domain,ld_minted,240,1,10560
+Mint Legendary Domain,ld_minted,720,3,10560
+Mint Legendary Domain,ld_minted,1200,5,10560
+Mint Legendary Domain,ld_minted,2400,10,10560
+Mint Legendary Domain,ld_minted,6000,25,10560
+Own Outlier Area,oa_owned,25,1,1100
+Own Outlier Area,oa_owned,75,3,1100
+Own Outlier Area,oa_owned,125,5,1100
+Own Outlier Area,oa_owned,250,10,1100
+Own Outlier Area,oa_owned,625,25,1100
+Own Common Area,ca_owned,30,1,1320
+Own Common Area,ca_owned,90,3,1320
+Own Common Area,ca_owned,150,5,1320
+Own Common Area,ca_owned,300,10,1320
+Own Common Area,ca_owned,750,25,1320
+Own Uncommon Area,ua_owned,35,1,1540
+Own Uncommon Area,ua_owned,105,3,1540
+Own Uncommon Area,ua_owned,175,5,1540
+Own Uncommon Area,ua_owned,350,10,1540
+Own Uncommon Area,ua_owned,875,25,1540
+Own Rare Area,ra_owned,40,1,1760
+Own Rare Area,ra_owned,120,3,1760
+Own Rare Area,ra_owned,200,5,1760
+Own Rare Area,ra_owned,400,10,1760
+Own Rare Area,ra_owned,1000,25,1760
+Own Legendary Area,la_owned,45,1,1980
+Own Legendary Area,la_owned,135,3,1980
+Own Legendary Area,la_owned,225,5,1980
+Own Legendary Area,la_owned,450,10,1980
+Own Legendary Area,la_owned,1125,25,1980
+Own Outlier Sector,os_owned,50,1,2200
+Own Outlier Sector,os_owned,150,3,2200
+Own Outlier Sector,os_owned,250,5,2200
+Own Outlier Sector,os_owned,500,10,2200
+Own Outlier Sector,os_owned,1250,25,2200
+Own Common Sector,cs_owned,55,1,2420
+Own Common Sector,cs_owned,165,3,2420
+Own Common Sector,cs_owned,275,5,2420
+Own Common Sector,cs_owned,550,10,2420
+Own Common Sector,cs_owned,1375,25,2420
+Own Uncommon Sector,us_owned,60,1,2640
+Own Uncommon Sector,us_owned,180,3,2640
+Own Uncommon Sector,us_owned,300,5,2640
+Own Uncommon Sector,us_owned,600,10,2640
+Own Uncommon Sector,us_owned,1500,25,2640
+Own Rare Sector,rs_owned,65,1,2860
+Own Rare Sector,rs_owned,195,3,2860
+Own Rare Sector,rs_owned,325,5,2860
+Own Rare Sector,rs_owned,650,10,2860
+Own Rare Sector,rs_owned,1625,25,2860
+Own Legendary Sector,ls_owned,70,1,3080
+Own Legendary Sector,ls_owned,210,3,3080
+Own Legendary Sector,ls_owned,350,5,3080
+Own Legendary Sector,ls_owned,700,10,3080
+Own Legendary Sector,ls_owned,1750,25,3080
+Own Outlier Zone,oz_owned,75,1,3300
+Own Outlier Zone,oz_owned,225,3,3300
+Own Outlier Zone,oz_owned,375,5,3300
+Own Outlier Zone,oz_owned,750,10,3300
+Own Outlier Zone,oz_owned,1875,25,3300
+Own Common Zone,cz_owned,80,1,3520
+Own Common Zone,cz_owned,240,3,3520
+Own Common Zone,cz_owned,400,5,3520
+Own Common Zone,cz_owned,800,10,3520
+Own Common Zone,cz_owned,2000,25,3520
+Own Uncommon Zone,uz_owned,85,1,3740
+Own Uncommon Zone,uz_owned,255,3,3740
+Own Uncommon Zone,uz_owned,425,5,3740
+Own Uncommon Zone,uz_owned,850,10,3740
+Own Uncommon Zone,uz_owned,2125,25,3740
+Own Rare Zone,rz_owned,90,1,3960
+Own Rare Zone,rz_owned,270,3,3960
+Own Rare Zone,rz_owned,450,5,3960
+Own Rare Zone,rz_owned,900,10,3960
+Own Rare Zone,rz_owned,2250,25,3960
+Own Legendary Zone,lz_owned,95,1,4180
+Own Legendary Zone,lz_owned,285,3,4180
+Own Legendary Zone,lz_owned,475,5,4180
+Own Legendary Zone,lz_owned,950,10,4180
+Own Legendary Zone,lz_owned,2375,25,4180
+Own Outlier Domain,od_owned,100,1,4400
+Own Outlier Domain,od_owned,300,3,4400
+Own Outlier Domain,od_owned,500,5,4400
+Own Outlier Domain,od_owned,1000,10,4400
+Own Outlier Domain,od_owned,2500,25,4400
+Own Common Domain,cd_owned,105,1,4620
+Own Common Domain,cd_owned,315,3,4620
+Own Common Domain,cd_owned,525,5,4620
+Own Common Domain,cd_owned,1050,10,4620
+Own Common Domain,cd_owned,2625,25,4620
+Own Uncommon Domain,ud_owned,110,1,4840
+Own Uncommon Domain,ud_owned,330,3,4840
+Own Uncommon Domain,ud_owned,550,5,4840
+Own Uncommon Domain,ud_owned,1100,10,4840
+Own Uncommon Domain,ud_owned,2750,25,4840
+Own Rare Domain,rd_owned,115,1,5060
+Own Rare Domain,rd_owned,345,3,5060
+Own Rare Domain,rd_owned,575,5,5060
+Own Rare Domain,rd_owned,1150,10,5060
+Own Rare Domain,rd_owned,2875,25,5060
+Own Legendary Domain,ld_owned,120,1,5280
+Own Legendary Domain,ld_owned,360,3,5280
+Own Legendary Domain,ld_owned,600,5,5280
+Own Legendary Domain,ld_owned,1200,10,5280
+Own Legendary Domain,ld_owned,3000,25,5280
+Own Piercer Drone,piercer_drone,5,1,655
+Own Piercer Drone,piercer_drone,50,10,655
+Own Piercer Drone,piercer_drone,100,50,655
+Own Piercer Drone,piercer_drone,500,500,655
+Own Genesis Drone,genesis_drone,10,1,660
+Own Genesis Drone,genesis_drone,50,5,660
+Own Genesis Drone,genesis_drone,100,25,660
+Own Genesis Drone,genesis_drone,500,100,660
+Own Night Drone,night_drone,15,1,665
+Own Night Drone,night_drone,50,3,665
+Own Night Drone,night_drone,100,10,665
+Own Night Drone,night_drone,500,50,665
+Own Piercer Rover,piercer_rover,5,1,655
+Own Piercer Rover,piercer_rover,50,50,655
+Own Piercer Rover,piercer_rover,100,100,655
+Own Piercer Rover,piercer_rover,500,500,655
+Own Genesis Rover,genesis_rover,10,1,660
+Own Genesis Rover,genesis_rover,50,10,660
+Own Genesis Rover,genesis_rover,100,50,660
+Own Genesis Rover,genesis_rover,500,100,660
+Own Night Rover,night_rover,15,1,665
+Own Night Rover,night_rover,50,5,665
+Own Night Rover,night_rover,100,25,665
+Own Night Rover,night_rover,500,50,665
+Own Bronze Badge,bronze_badge,1,1,56
+Own Bronze Badge,bronze_badge,5,5,56
+Own Bronze Badge,bronze_badge,50,50,56
+Own Silver Badge,silver_badge,5,1,305
+Own Silver Badge,silver_badge,50,5,305
+Own Silver Badge,silver_badge,250,50,305
+Own Gold Badge,gold_badge,50,1,800
+Own Gold Badge,gold_badge,250,5,800
+Own Gold Badge,gold_badge,500,10,800
+AOC Badges Burn,aoc_badge_burn,5,5,1280
+AOC Badges Burn,aoc_badge_burn,25,25,1280
+AOC Badges Burn,aoc_badge_burn,250,100,1280
+AOC Badges Burn,aoc_badge_burn,1000,500,1280
+AOC Bronze Badges Burn 3,bronze_badge_burn,10,5,3060
+AOC Bronze Badges Burn 3,bronze_badge_burn,50,25,3060
+AOC Bronze Badges Burn 3,bronze_badge_burn,500,100,3060
+AOC Bronze Badges Burn 3,bronze_badge_burn,2500,500,3060
+AOC Silver Badge Burn 2,silver_badge_burn,50,5,6300
+AOC Silver Badge Burn 2,silver_badge_burn,250,25,6300
+AOC Silver Badge Burn 2,silver_badge_burn,1000,100,6300
+AOC Silver Badge Burn 2,silver_badge_burn,5000,500,6300
+AOC Badge Pack Burn 51,aoc_badge_pack_burn,10,5,560
+AOC Badge Pack Burn 51,aoc_badge_pack_burn,50,25,560
+AOC Badge Pack Burn 51,aoc_badge_pack_burn,500,100,560
+Cargo Drop 3 Burn GG15,cd3_burn,50,5,1300
+Cargo Drop 3 Burn GG15,cd3_burn,250,25,1300
+Cargo Drop 3 Burn GG15,cd3_burn,1000,100,1300
+Avatars Burned,avatar_burn,100,1,19600
+Avatars Burned,avatar_burn,500,5,19600
+Avatars Burned,avatar_burn,1000,10,19600
+Avatars Burned,avatar_burn,3000,50,19600
+Avatars Burned,avatar_burn,5000,100,19600
+Avatars Burned,avatar_burn,10000,500,19600
+Own Y_ MetaShares 6,y_ms,10,1,6110
+Own Y_ MetaShares 6,y_ms,100,10,6110
+Own Y_ MetaShares 6,y_ms,1000,100,6110
+Own Y_ MetaShares 6,y_ms,5000,500,6110
+Own GWS MetaShares 30,gws_ms,10,1,6110
+Own GWS MetaShares 30,gws_ms,100,10,6110
+Own GWS MetaShares 30,gws_ms,1000,100,6110
+Own GWS MetaShares 30,gws_ms,5000,500,6110
+Own LuckyCat Metashares 25,lc_ms,10,1,6110
+Own LuckyCat Metashares 25,lc_ms,100,10,6110
+Own LuckyCat Metashares 25,lc_ms,1000,100,6110
+Own LuckyCat Metashares 25,lc_ms,5000,500,6110
+Own EternaLabs Metashares 31,el_ms,10,1,6110
+Own EternaLabs Metashares 31,el_ms,100,10,6110
+Own EternaLabs Metashares 31,el_ms,1000,100,6110
+Own EternaLabs Metashares 31,el_ms,5000,500,6110
+Own NetEmpire Metashares 27,ne_ms,10,1,6110
+Own NetEmpire Metashares 27,ne_ms,100,10,6110
+Own NetEmpire Metashares 27,ne_ms,1000,100,6110
+Own NetEmpire Metashares 27,ne_ms,5000,500,6110
+Own Gravity Grade MetaShares 26,gg_ms,10,1,6110
+Own Gravity Grade MetaShares 26,gg_ms,100,10,6110
+Own Gravity Grade MetaShares 26,gg_ms,1000,100,6110
+Own Gravity Grade MetaShares 26,gg_ms,5000,500,6110
+Own Newlands MetaShares 26,nl_ms,10,1,6110
+Own Newlands MetaShares 26,nl_ms,100,10,6110
+Own Newlands MetaShares 26,nl_ms,1000,100,6110
+Own Newlands MetaShares 26,nl_ms,5000,500,6110
+Own HaveBlue MetaShares 26,hb_ms,10,1,6110
+Own HaveBlue MetaShares 26,hb_ms,100,10,6110
+Own HaveBlue MetaShares 26,hb_ms,1000,100,6110
+Own HaveBlue MetaShares 26,hb_ms,5000,500,6110
+Own Arcades,arcades_owned,10,1,6110
+Own Arcades,arcades_owned,100,10,6110
+Own Arcades,arcades_owned,1000,100,6110
+Own Arcades,arcades_owned,5000,500,6110
+Own Unique Genesis NFT,genesis_unique_owned,100,1,3700
+Own Unique Genesis NFT,genesis_unique_owned,200,2,3700
+Own Unique Genesis NFT,genesis_unique_owned,300,3,3700
+Own Unique Genesis NFT,genesis_unique_owned,400,4,3700
+Own Unique Genesis NFT,genesis_unique_owned,500,5,3700
+Own Unique Genesis NFT,genesis_unique_owned,600,6,3700
+Own Unique Genesis NFT,genesis_unique_owned,700,7,3700
+Own Unique Genesis NFT,genesis_unique_owned,900,8,3700
+Mint Unique Genesis NFT,genesis_unique_mints,100,1,3700
+Mint Unique Genesis NFT,genesis_unique_mints,200,2,3700
+Mint Unique Genesis NFT,genesis_unique_mints,300,3,3700
+Mint Unique Genesis NFT,genesis_unique_mints,400,4,3700
+Mint Unique Genesis NFT,genesis_unique_mints,500,5,3700
+Mint Unique Genesis NFT,genesis_unique_mints,600,6,3700
+Mint Unique Genesis NFT,genesis_unique_mints,700,7,3700
+Mint Unique Genesis NFT,genesis_unique_mints,900,8,3700
+$IXT Speedup (hours),ixt_speedup_hours,25,25,5675
+$IXT Speedup (hours),ixt_speedup_hours,50,50,5675
+$IXT Speedup (hours),ixt_speedup_hours,100,100,5675
+$IXT Speedup (hours),ixt_speedup_hours,500,500,5675
+$IXT Speedup (hours),ixt_speedup_hours,5000,5000,5675
+AGOLD Streamed,spent_agold,100,5,13800
+AGOLD Streamed,spent_agold,200,10,13800
+AGOLD Streamed,spent_agold,500,25,13800
+AGOLD Streamed,spent_agold,1000,50,13800
+AGOLD Streamed,spent_agold,2000,100,13800
+AGOLD Streamed,spent_agold,10000,500,13800
+Participate in Normal Raffle 16,regular_raffle,10,1,360
+Participate in Normal Raffle 16,regular_raffle,100,10,360
+Participate in Normal Raffle 16,regular_raffle,250,25,360
+Participate in Ultra Raffle 17,premium_raffle,50,1,1800
+Participate in Ultra Raffle 17,premium_raffle,500,10,1800
+Participate in Ultra Raffle 17,premium_raffle,1250,25,1800
+Participate in Golden Raffle 18,golden_raffle,100,1,3600
+Participate in Golden Raffle 18,golden_raffle,1000,10,3600
+Participate in Golden Raffle 18,golden_raffle,2500,25,3600
+Create Order EL,prospecting_orders,50,100,2800
+Create Order EL,prospecting_orders,250,500,2800
+Create Order EL,prospecting_orders,2500,5000,2800
+Create Order GWS (per 25 waste),gws_orders,50,100,2800
+Create Order GWS (per 25 waste),gws_orders,250,500,2800
+Create Order GWS (per 25 waste),gws_orders,2500,5000,2800
+Facilty Minting,minted_facilities,50,1,5550
+Facilty Minting,minted_facilities,500,10,5550
+Facilty Minting,minted_facilities,5000,100,5550
+Farm Waste,waste_collected,100,500,1100
+Farm Waste,waste_collected,1000,5000,1100
+Energy Minted 24,energy_collected,50,100,5550
+Energy Minted 24,energy_collected,500,500,5550
+Energy Minted 24,energy_collected,5000,5000,5550
+Energy Burned 24,energy_burn,25,100,2775
+Energy Burned 24,energy_burn,250,500,2775
+Energy Burned 24,energy_burn,2500,5000,2775
+M3ta-m0d burned 0,meta_mod_burn,100,2,12600
+M3ta-m0d burned 0,meta_mod_burn,500,6,12600
+M3ta-m0d burned 0,meta_mod_burn,2000,10,12600
+M3ta-m0d burned 0,meta_mod_burn,10000,50,12600
+1 Month Staking (k),month_1,100,1,5600
+1 Month Staking (k),month_1,500,5,5600
+1 Month Staking (k),month_1,5000,100,5600
+3 Month Staking (k),month_3,200,1,11200
+3 Month Staking (k),month_3,1000,5,11200
+3 Month Staking (k),month_3,10000,100,11200
+6 Month Staking (k),month_6,400,1,22400
+6 Month Staking (k),month_6,2000,5,22400
+6 Month Staking (k),month_6,20000,100,22400
+12 Month Staking (k),month_12,800,1,44800
+12 Month Staking (k),month_12,4000,5,44800
+12 Month Staking (k),month_12,40000,100,44800
+LP Staking (k - USD),lp_usd_staked,100,1,5600
+LP Staking (k - USD),lp_usd_staked,500,5,5600
+LP Staking (k - USD),lp_usd_staked,5000,100,5600
