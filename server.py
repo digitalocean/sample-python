@@ -187,7 +187,7 @@ async def on_component(event: Component):
                     custom_id="role"
                     )
                 signup_message = await ctx.send(f"<@{ctx.author.id}>",components=components)
-                await asyncio.sleep(30)
+                await asyncio.sleep(15)
                 await set_deleted()
 
         case "unsignup":
@@ -195,7 +195,7 @@ async def on_component(event: Component):
                 party.remove_user_from_role(f"<@{ctx.author.id}>")
             await edit_message(ctx, party.MessageID)
             confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been removed from the party.")
-            await asyncio.sleep(5)
+            await asyncio.sleep(3)
             await confirmation.delete()
 
         case "role":
@@ -204,7 +204,7 @@ async def on_component(event: Component):
             await edit_message(ctx, party.MessageID)
             await set_deleted()
             confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been added to {selected_role}")
-            await asyncio.sleep(5)
+            await asyncio.sleep(1)
             await confirmation.delete()
 
 bot.start(token)
