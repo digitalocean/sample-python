@@ -168,7 +168,14 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
 @listen(Component)
 async def on_component(event: Component):
     ctx = event.ctx
-    global signup_message
+    signup_message = None
+
+    async def set_deleted():
+        nonlocal signup_message
+        if signup_message:
+            await signup_message.delete()
+        signup_message = None
+
     match ctx.custom_id:
         case "signup":
             if party.has_user_signed_up(f"<@{ctx.author.id}>") and party.Multi == False:
@@ -179,38 +186,25 @@ async def on_component(event: Component):
                     placeholder="Choose your role",
                     custom_id="role"
                     )
-                signup_message = await ctx.send(components=components)
+                signup_message = await ctx.send(f"<@{ctx.author.id}>",components=components)
                 await asyncio.sleep(30)
-                try:
-                    await signup_message.delete()
-                except Exception as e:
-                    pass
+                await set_deleted()
 
         case "unsignup":
             while party.has_user_signed_up(f"<@{ctx.author.id}>"): 
                 party.remove_user_from_role(f"<@{ctx.author.id}>")
-            await edit_message(ctx, party.MessageID)
+                await edit_message(ctx, party.MessageID)
+                confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been removed from the party.")
+                await asyncio.sleep(5)
+                await confirmation.delete()
 
         case "role":
             selected_role = ctx.values[0]
             party.set_user_id_for_role(selected_role, f"<@{ctx.author.id}>")
             await edit_message(ctx, party.MessageID)
-            await signup_message.delete()
-
-
-@slash_command(
-        name="party",
-        description="Used to manage Palia parties",
-        sub_cmd_name="delete",
-        sub_cmd_description="Delete a Palia Party"
-)
-@slash_option(
-    name="id",
-    description="Party ID",
-    required=True,
-    opt_type=OptionType.STRING
-)
-async def delete(ctx: SlashContext, id: str):
-    await ctx.send(f"Party {id} deleted!")
+            await set_deleted()
+            confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been added to {selected_role}")
+            await asyncio.sleep(5)
+            await confirmation.delete()
 
 bot.start(token)
