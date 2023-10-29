@@ -1,12 +1,10 @@
 import asyncio
 from datetime import datetime
-from dotenv import load_dotenv
 from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu
 from interactions.api.events import Component
 import os
 import uuid
 
-load_dotenv()
 token= os.environ.get("DISCORD_TOKEN")
 
 bot = Client(intents=Intents.DEFAULT)
