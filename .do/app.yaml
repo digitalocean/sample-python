@@ -1,8 +1,0 @@
-name: sample-python
-services:
-- environment_slug: python
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: Mralbert93/chapaa-bot
-  name: sample-python
