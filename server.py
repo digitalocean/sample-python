@@ -193,10 +193,10 @@ async def on_component(event: Component):
         case "unsignup":
             while party.has_user_signed_up(f"<@{ctx.author.id}>"): 
                 party.remove_user_from_role(f"<@{ctx.author.id}>")
-                await edit_message(ctx, party.MessageID)
-                confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been removed from the party.")
-                await asyncio.sleep(5)
-                await confirmation.delete()
+            await edit_message(ctx, party.MessageID)
+            confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been removed from the party.")
+            await asyncio.sleep(5)
+            await confirmation.delete()
 
         case "role":
             selected_role = ctx.values[0]
