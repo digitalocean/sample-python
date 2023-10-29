@@ -4,5 +4,5 @@ services:
   github:
     branch: main
     deploy_on_push: true
-    repo: digitalocean/sample-python
+    repo: Mralbert93/chapaa-bot
   name: sample-python
