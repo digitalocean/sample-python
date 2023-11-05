@@ -23,10 +23,11 @@ class Party:
             "Leafer": ["Open"]*4,
             "Fruit Froster": ["Open"]*3,
             "Oven/Spreader": ["Open"]*3,
-            "Flexible (TBD)": ["Open"]*4,
+            "Flexible": ["Open"]*4,
         }
         self.Roles.update(kwargs)
         self.MessageID = None
+        self.ChannelID = None
     
     def has_user_signed_up(self, user_id):
         for role in self.Roles.values():
@@ -56,7 +57,8 @@ class Party:
             "Batter": ":butter: Butter, :egg: Eggs, 🌾 Flour",
             "Froster": ":milk: Milk, :butter: Butter",
             "Leafer": ":leaves: Sweet Leaves",
-            "Fruit Froster": ":apple: Fruit, :ice_cube: Sugar"
+            "Fruit Froster": ":apple: Fruit, :ice_cube: Sugar",
+            "Flexible": "Ingredients TBD"
         }
 
         for role, members in self.Roles.items():
@@ -165,6 +167,7 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
 
     posting = await ctx.send(embed=embed,components=components)
     party.MessageID = posting.id
+    party.ChannelID = posting.channel
 
 @listen(Component)
 async def on_component(event: Component):
@@ -183,7 +186,7 @@ async def on_component(event: Component):
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
                 components = StringSelectMenu(
-                    "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible (TBD)",
+                    "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible",
                     placeholder="Choose your role",
                     custom_id="role"
                     )
@@ -245,8 +248,13 @@ async def repost(ctx: SlashContext):
         )
     ]
 
+    oldchannel = party.ChannelID
+    target_message = await oldchannel.fetch_message(party.MessageID)
+    await target_message.delete()
+    
     posting = await ctx.send(embed=embed,components=components)
     party.MessageID = posting.id
+    party.ChannelID = posting.channel
 
 @slash_command(
         name="party",
