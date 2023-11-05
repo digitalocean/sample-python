@@ -27,7 +27,7 @@ class Party:
         }
         self.Roles.update(kwargs)
         self.MessageID = None
-
+    
     def has_user_signed_up(self, user_id):
         for role in self.Roles.values():
             if user_id in role:
@@ -207,5 +207,63 @@ async def on_component(event: Component):
             confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been added to {selected_role}")
             await asyncio.sleep(1)
             await confirmation.delete()
+
+@slash_command(
+        name="party",
+        description="Used to manage Palia parties",
+        sub_cmd_name="repost",
+        sub_cmd_description="Reposts current Palia Party",
+)
+async def repost(ctx: SlashContext):
+    description = party.generate_description()
+    embed = {
+        "title": f"{party.Quantity}x {party.Type} Party",
+        "description": description,
+        "thumbnail": {
+            "url": "https://emojiisland.com/cdn/shop/products/4_large.png",
+            "height": 0,
+            "width": 0
+        },
+        "footer": {
+            "text": "Last updated"
+        },
+        "timestamp": f"{datetime.utcnow()}"
+    }
+
+    components: list[ActionRow] = [
+        ActionRow(
+            Button(
+                style=ButtonStyle.GREEN,
+                label="Sign Up",
+                custom_id="signup",
+            ),
+            Button(
+                style=ButtonStyle.RED,
+                label="Unsign Up",
+                custom_id="unsignup",
+            )
+        )
+    ]
+
+    posting = await ctx.send(embed=embed,components=components)
+    party.MessageID = posting.id
+
+@slash_command(
+        name="party",
+        description="Used to manage Palia parties",
+        sub_cmd_name="notify",
+        sub_cmd_description="Reposts current Palia Party",
+)
+async def notify(ctx: SlashContext):
+    user_list = []
+
+    for role_list in party.Roles.values():
+        for role in role_list:
+            if role != "Open" and role not in user_list:
+                user_list.append(role)
+    
+    user_list_str = ', '.join(user_list)               
+
+    await ctx.send(f"The party is starting now! Please add **{party.Host}** in game and report to their house. {user_list_str}")   
 
 bot.start(token)
