@@ -23,6 +23,7 @@ class Party:
             "Leafer": ["Open"]*4,
             "Fruit Froster": ["Open"]*3,
             "Oven/Spreader": ["Open"]*3,
+            "Flexible (TBD)": ["Open"]*4,
         }
         self.Roles.update(kwargs)
         self.MessageID = None
@@ -182,7 +183,7 @@ async def on_component(event: Component):
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
                 components = StringSelectMenu(
-                    "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader",
+                    "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible (TBD)",
                     placeholder="Choose your role",
                     custom_id="role"
                     )
