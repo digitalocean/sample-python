@@ -18,3 +18,6 @@ The currently supported party types are:
 - Apple Cake
 - Chili Oil Dumpling
 
+Once a party is created, players can do the following by interacting with the party post buttons:
+- Sign up for role(s)
+- Unsign up from the party
