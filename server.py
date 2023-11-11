@@ -302,7 +302,7 @@ async def repost(ctx: SlashContext):
         name="party",
         description="Used to manage Palia parties",
         sub_cmd_name="notify",
-        sub_cmd_description="Reposts current Palia Party",
+        sub_cmd_description="Notify users that party is starting",
 )
 async def notify(ctx: SlashContext):
     user_list = []
