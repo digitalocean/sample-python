@@ -11,7 +11,7 @@ bot = Client(intents=Intents.DEFAULT)
 
 class Party:
     PartyTypeRoles = {
-        "Apple Cake": {
+        "Cake": {
             "Starter": ["Open"],
             "Batter": ["Open"]*3,
             "Froster": ["Open"],
@@ -33,12 +33,12 @@ class Party:
     }
 
     PartyTypeIngredients = {
-        "Apple Cake": {
+        "Cake": {
             "Starter": ":blueberries: Blueberries",
             "Batter": ":butter: Butter, :egg: Eggs, <:flour:1168232067197317130> Flour",
             "Froster": ":milk: Milk, :butter: Butter",
             "Leafer": ":leaves: Sweet Leaves",
-            "Fruit Froster": ":apple: Fruit, <:sugar:1171830932513234974> Sugar",
+            "Fruit Froster": ":apple: Any Fruit, <:sugar:1171830932513234974> Sugar",
             "Flexible": "Ingredients TBD"
         },
         "Chili Oil Dumpling": {
@@ -162,12 +162,12 @@ async def edit_message(ctx, message_id: int):
 )
 async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: bool = True):
     global party
-    if "apple" in type.lower() or "cake" in type.lower():
-        type = "Apple Cake"
+    if "cake" in type.lower():
+        type = "Cake"
     elif "chili" in type.lower() or "dumpling" in type.lower():
         type = "Chili Oil Dumpling"
     else:
-        error_post = await ctx.send(f"<@{ctx.author.id}>, sorry {type} party type is not supported.\nThe following party types are currently supported: Apple Cake, Chili Oil Dumpling.")
+        error_post = await ctx.send(f"<@{ctx.author.id}>, sorry {type} party type is not supported.\nThe following party types are currently supported: Cake, Chili Oil Dumpling.")
         await asyncio.sleep(30)
         await error_post.delete()
         return
@@ -223,7 +223,7 @@ async def on_component(event: Component):
             if party.has_user_signed_up(f"<@{ctx.author.id}>") and party.Multi == False:
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
-                if party.Type == "Apple Cake":
+                if party.Type == "Cake":
                     roles_list = "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible"
                 elif party.Type == "Chili Oil Dumpling":
                     roles_list = "Starter", "Meat", "Vegetable", "Wheat", "Rice", "Pepper", "Oil", "Overprep"
