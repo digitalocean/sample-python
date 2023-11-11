@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu
+from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu, events
 from interactions.api.events import Component
 import os
 import uuid
@@ -10,13 +10,8 @@ token= os.environ.get("DISCORD_TOKEN")
 bot = Client(intents=Intents.DEFAULT)
 
 class Party:
-    def __init__(self, Type, Quantity, Host, Multi=None, **kwargs):
-        self.ID = str(uuid.uuid4())
-        self.Type = Type
-        self.Quantity = Quantity
-        self.Host = Host
-        self.Multi = Multi if Multi is not None else True
-        self.Roles = {
+    PartyTypeRoles = {
+        "Apple Cake": {
             "Starter": ["Open"],
             "Batter": ["Open"]*3,
             "Froster": ["Open"],
@@ -24,7 +19,47 @@ class Party:
             "Fruit Froster": ["Open"]*3,
             "Oven/Spreader": ["Open"]*3,
             "Flexible": ["Open"]*4,
+        },
+        "Chili Oil Dumpling": {
+            "Starter": ["Open"],
+            "Meat": ["Open"],
+            "Vegetable": ["Open"],
+            "Wheat": ["Open"],
+            "Rice": ["Open"],
+            "Pepper": ["Open"],
+            "Oil": ["Open"],
+            "Overprep": ["Open"]*4
         }
+    }
+
+    PartyTypeIngredients = {
+        "Apple Cake": {
+            "Starter": ":blueberries: Blueberries",
+            "Batter": ":butter: Butter, :egg: Eggs, <:flour:1168232067197317130> Flour",
+            "Froster": ":milk: Milk, :butter: Butter",
+            "Leafer": ":leaves: Sweet Leaves",
+            "Fruit Froster": ":apple: Fruit, <:sugar:1171830932513234974> Sugar",
+            "Flexible": "Ingredients TBD"
+        },
+        "Chili Oil Dumpling": {
+            "Starter": "Spice Sprouts",
+            "Meat": ":cut_of_meat: Any Red Meat",
+            "Vegetable": ":potato: Any Vegetable",
+            "Wheat": "<:wheat:1172680400276029541> Wheat",
+            "Rice": ":rice: Rice",
+            "Pepper": ":hot_pepper: Spicy Pepper",
+            "Oil": "<:cooking_oil:1172680846856159263> Cooking Oil",
+            "Overprep": "Any ingredient above"
+        }
+    }
+
+    def __init__(self, Type, Quantity, Host, Multi=None, **kwargs):
+        self.ID = str(uuid.uuid4())
+        self.Type = Type
+        self.Quantity = Quantity
+        self.Host = Host
+        self.Multi = Multi if Multi is not None else True
+        self.Roles = self.PartyTypeRoles.get(Type, {})
         self.Roles.update(kwargs)
         self.MessageID = None
         self.ChannelID = None
@@ -52,14 +87,7 @@ class Party:
     def generate_description(self):
         description = f"Hosted by {self.Host}\n\n"
         
-        required_ingredients = {
-            "Starter": ":blueberries: Blueberries",
-            "Batter": ":butter: Butter, :egg: Eggs, 🌾 Flour",
-            "Froster": ":milk: Milk, :butter: Butter",
-            "Leafer": ":leaves: Sweet Leaves",
-            "Fruit Froster": ":apple: Fruit, :ice_cube: Sugar",
-            "Flexible": "Ingredients TBD"
-        }
+        required_ingredients = self.PartyTypeIngredients.get(party.Type, {})
 
         for role, members in self.Roles.items():
             description += f"**{role}:** {required_ingredients.get(role, 'No ingredients required')}\n"
@@ -134,6 +162,16 @@ async def edit_message(ctx, message_id: int):
 )
 async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: bool = True):
     global party
+    if "apple" in type.lower() or "cake" in type.lower():
+        type = "Apple Cake"
+    elif "chili" in type.lower() or "dumpling" in type.lower():
+        type = "Chili Oil Dumpling"
+    else:
+        error_post = await ctx.send(f"<@{ctx.author.id}>, sorry {type} party type is not supported.\nThe following party types are currently supported: Apple Cake, Chili Oil Dumpling.")
+        await asyncio.sleep(30)
+        await error_post.delete()
+        return
+
     party = Party(Type=type, Quantity=quantity, Host=host, Multi=multi)
     description = party.generate_description()
     embed = {
@@ -185,8 +223,12 @@ async def on_component(event: Component):
             if party.has_user_signed_up(f"<@{ctx.author.id}>") and party.Multi == False:
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
+                if party.Type == "Apple Cake":
+                    roles_list = "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible"
+                elif party.Type == "Chili Oil Dumpling":
+                    roles_list = "Starter", "Meat", "Vegetable", "Wheat", "Rice", "Pepper", "Oil", "Overprep"
                 components = StringSelectMenu(
-                    "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible",
+                    roles_list,
                     placeholder="Choose your role",
                     custom_id="role"
                     )
@@ -273,5 +315,9 @@ async def notify(ctx: SlashContext):
     user_list_str = ', '.join(user_list)               
 
     await ctx.send(f"The party is starting now! Please add **{party.Host}** in game and report to their house. {user_list_str}")   
+
+@listen()
+async def on_startup():
+    print("I am ready and online!")
 
 bot.start(token)
