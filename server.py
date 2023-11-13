@@ -1,13 +1,38 @@
 import asyncio
-from datetime import datetime
-from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu, events
+from datetime import datetime, timedelta, timezone
+from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu
 from interactions.api.events import Component
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 import os
-import uuid
+import shortuuid
 
+# Set environment variables
 token= os.environ.get("DISCORD_TOKEN")
+database_url = os.environ.get("DATABASE_URL")
 
+# Create client for Discord and MongoDB
 bot = Client(intents=Intents.DEFAULT)
+mongo = MongoClient(database_url)
+
+# Test connection to database
+try:
+    mongo.admin.command('ping')
+    print("Pinged database. You have successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
+# Set database and collection
+db = mongo.chapaa
+parties_collection = db["parties"]
+
+def get_time():
+    global now
+    eastern_offset = timezone(timedelta(hours=-5))
+    now_utc = datetime.utcnow()
+    now_eastern = now_utc + timedelta(hours=-5) 
+    now = now_eastern.strftime('%I:%M %p')
+    return now
 
 class Party:
     PartyTypeRoles = {
@@ -53,16 +78,20 @@ class Party:
         }
     }
 
-    def __init__(self, Type, Quantity, Host, Multi=None, **kwargs):
-        self.ID = str(uuid.uuid4())
+    def __init__(self, ID, Type, Quantity, Host, Multi=None,Roles=None, MessageID=None, ChannelID=None, Responses=None, **kwargs):
+        self.ID = ID
         self.Type = Type
         self.Quantity = Quantity
         self.Host = Host
         self.Multi = Multi if Multi is not None else True
-        self.Roles = self.PartyTypeRoles.get(Type, {})
+        self.Roles = Roles if Roles is not None else self.PartyTypeRoles[Type]
         self.Roles.update(kwargs)
-        self.MessageID = None
-        self.ChannelID = None
+        self.MessageID = MessageID if MessageID is not None else ""
+        self.ChannelID = ChannelID if ChannelID is not None else ""
+        self.Responses = Responses if Responses is not None else []
+
+    def __str__(self):
+        return f"Party(ID={self.ID}, Type={self.Type}, Quantity={self.Quantity}, Host={self.Host}, Multi={self.Multi}, Roles={self.Roles}, MessageID={self.MessageID}, ChannelID={self.ChannelID}, Responses={self.Responses})"
     
     def has_user_signed_up(self, user_id):
         for role in self.Roles.values():
@@ -87,7 +116,7 @@ class Party:
     def generate_description(self):
         description = f"Hosted by {self.Host}\n\n"
         
-        required_ingredients = self.PartyTypeIngredients.get(party.Type, {})
+        required_ingredients = self.PartyTypeIngredients.get(self.Type, {})
 
         for role, members in self.Roles.items():
             description += f"**{role}:** {required_ingredients.get(role, 'No ingredients required')}\n"
@@ -98,11 +127,12 @@ class Party:
 
         return description
 
-async def edit_message(ctx, message_id: int):
+async def edit_message(self, ctx, message_id: int):
     message = await ctx.channel.fetch_message(message_id)
-    description = party.generate_description()
+    description = self.generate_description()
+    get_time()
     embed = {
-        "title": f"{party.Quantity}x {party.Type} Party",
+        "title": f"{self.Quantity}x {self.Type} Party",
         "description": description,
         "thumbnail": {
             "url": "https://emojiisland.com/cdn/shop/products/4_large.png",
@@ -110,9 +140,8 @@ async def edit_message(ctx, message_id: int):
             "width": 0
         },
         "footer": {
-            "text": "Last updated"
-        },
-        "timestamp": f"{datetime.utcnow()}"
+            "text": f"ID: {self.ID} • Last updated at {now} Eastern"
+        }
     }
     components: list[ActionRow] = [
         ActionRow(
@@ -130,6 +159,7 @@ async def edit_message(ctx, message_id: int):
     ]
     await message.edit(embed=embed,components=components)
 
+# Command create
 @slash_command(
         name="party",
         description="Used to manage Palia parties",
@@ -162,6 +192,7 @@ async def edit_message(ctx, message_id: int):
 )
 async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: bool = True):
     global party
+
     if "cake" in type.lower():
         type = "Cake"
     elif "chili" in type.lower() or "dumpling" in type.lower():
@@ -172,8 +203,9 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
         await error_post.delete()
         return
 
-    party = Party(Type=type, Quantity=quantity, Host=host, Multi=multi)
+    party = Party(ID=str(shortuuid.uuid()), Type=type, Quantity=quantity, Host=host, Multi=multi, Roles=None)
     description = party.generate_description()
+    get_time()
     embed = {
         "title": f"{party.Quantity}x {party.Type} Party",
         "description": description,
@@ -183,9 +215,8 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
             "width": 0
         },
         "footer": {
-            "text": "Last updated"
-        },
-        "timestamp": f"{datetime.utcnow()}"
+            "text": f"ID: {party.ID} • Last updated at {now} Eastern"
+        }
     }
     
     components: list[ActionRow] = [
@@ -205,13 +236,39 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
 
     posting = await ctx.send(embed=embed,components=components)
     party.MessageID = posting.id
-    party.ChannelID = posting.channel
+    party.ChannelID = posting.channel.id
+
+    party_data = {
+        "ID": party.ID,
+        "Type": party.Type,
+        "Quantity": party.Quantity,
+        "Host": party.Host,
+        "Multi": party.Multi,
+        "Roles": party.Roles,
+        "MessageID": party.MessageID,
+        "ChannelID": party.ChannelID,
+        "Responses": []
+    }
+    parties_collection.insert_one(party_data)
+    party = None
 
 @listen(Component)
 async def on_component(event: Component):
     ctx = event.ctx
     signup_message = None
+    party = None
 
+    async def retrieve_party(message_id, action):
+        nonlocal party
+        if action == "signup" or action == "unsignup":
+            result = parties_collection.find_one({"MessageID": message_id})
+            party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=None, MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+            return party
+        elif action == "role":
+            result = parties_collection.find_one({"Responses": {"$elemMatch": {"$eq": message_id}}})
+            party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+            return party
+        
     async def set_deleted():
         nonlocal signup_message
         if signup_message:
@@ -220,6 +277,7 @@ async def on_component(event: Component):
 
     match ctx.custom_id:
         case "signup":
+            await retrieve_party(ctx.message.id, "signup")
             if party.has_user_signed_up(f"<@{ctx.author.id}>") and party.Multi == False:
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
@@ -233,33 +291,48 @@ async def on_component(event: Component):
                     custom_id="role"
                     )
                 signup_message = await ctx.send(f"<@{ctx.author.id}>",components=components)
+                parties_collection.update_one({"MessageID": party.MessageID}, {"$push":{"Responses": signup_message.id}})
                 await asyncio.sleep(15)
                 await set_deleted()
 
         case "unsignup":
+            await retrieve_party(ctx.message.id, "unsignup")
             while party.has_user_signed_up(f"<@{ctx.author.id}>"): 
                 party.remove_user_from_role(f"<@{ctx.author.id}>")
-            await edit_message(ctx, party.MessageID)
+            await edit_message(party, ctx, party.MessageID)
+            parties_collection.update_one({"MessageID": party.MessageID}, {"$set":{"Roles": party.Roles}})
             confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been removed from the party.")
             await asyncio.sleep(3)
             await confirmation.delete()
 
         case "role":
+            await retrieve_party(ctx.message.id, "role")
             selected_role = ctx.values[0]
             party.set_user_id_for_role(selected_role, f"<@{ctx.author.id}>")
-            await edit_message(ctx, party.MessageID)
+            await edit_message(party, ctx, party.MessageID)
+            parties_collection.update_one({"MessageID": party.MessageID}, {"$set":{"Roles": party.Roles}})
             await set_deleted()
             confirmation = await ctx.send(f"<@{ctx.author.id}>, you have been added to {selected_role}")
             await asyncio.sleep(1)
             await confirmation.delete()
 
+# Repost command
 @slash_command(
         name="party",
         description="Used to manage Palia parties",
         sub_cmd_name="repost",
         sub_cmd_description="Reposts current Palia Party",
 )
-async def repost(ctx: SlashContext):
+@slash_option(
+    name="id",
+    description="ID of party",
+    required=True,
+    opt_type=OptionType.STRING
+)
+async def repost(ctx: SlashContext, id: str):
+    result = parties_collection.find_one({"ID": id})
+    party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+    get_time()
     description = party.generate_description()
     embed = {
         "title": f"{party.Quantity}x {party.Type} Party",
@@ -270,9 +343,8 @@ async def repost(ctx: SlashContext):
             "width": 0
         },
         "footer": {
-            "text": "Last updated"
-        },
-        "timestamp": f"{datetime.utcnow()}"
+            "text": f"ID: {party.ID} • Last updated at {now} Eastern"
+        }
     }
 
     components: list[ActionRow] = [
@@ -290,22 +362,34 @@ async def repost(ctx: SlashContext):
         )
     ]
 
-    oldchannel = party.ChannelID
+    oldchannel = bot.get_channel(party.ChannelID)
     target_message = await oldchannel.fetch_message(party.MessageID)
     await target_message.delete()
     
     posting = await ctx.send(embed=embed,components=components)
     party.MessageID = posting.id
-    party.ChannelID = posting.channel
+    party.ChannelID = posting.channel.id
+    parties_collection.update_one({"ID": party.ID}, {"$set":{"MessageID": party.MessageID,"ChannelID": party.ChannelID}})
 
+# Notify command
 @slash_command(
         name="party",
         description="Used to manage Palia parties",
         sub_cmd_name="notify",
         sub_cmd_description="Notify users that party is starting",
 )
-async def notify(ctx: SlashContext):
+@slash_option(
+    name="id",
+    description="ID of party",
+    required=True,
+    opt_type=OptionType.STRING
+)
+async def notify(ctx: SlashContext, id: str):
     user_list = []
+
+    result = parties_collection.find_one({"ID": id})
+    party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+
 
     for role_list in party.Roles.values():
         for role in role_list:
@@ -314,10 +398,12 @@ async def notify(ctx: SlashContext):
     
     user_list_str = ', '.join(user_list)               
 
-    await ctx.send(f"The party is starting now! Please add **{party.Host}** in game and report to their house. {user_list_str}")   
+    await ctx.send(f"The party is starting now! Please add **{party.Host}** in game and report to their house. {user_list_str}")
 
+# Bot is ready
 @listen()
 async def on_startup():
-    print("I am ready and online!")
+    print("Bot is ready and online!")
 
+# Start bot
 bot.start(token)
