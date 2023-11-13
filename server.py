@@ -41,6 +41,7 @@ def get_next_sequence_value(sequence_name):
     )
     return result['seq']
 
+# Get current time in Eastern
 def get_time():
     global now
     eastern_offset = timezone(timedelta(hours=-5))
@@ -49,6 +50,7 @@ def get_time():
     now = now_eastern.strftime('%I:%M %p')
     return now
 
+# Party class
 class Party:
     PartyTypeRoles = {
         "Cake": {
@@ -91,6 +93,11 @@ class Party:
             "Oil": "<:cooking_oil:1172680846856159263> Cooking Oil",
             "Overprep": "Any ingredient above"
         }
+    }
+
+    PartyTypeImages = {
+        "Cake": "https://palia.wiki.gg/images/8/81/Celebration_Cake.png",
+        "Chili Oil Dumpling": "https://palia.wiki.gg/images/c/c1/Chili_Oil_Dumplings.png"
     }
 
     def __init__(self, ID, Type, Quantity, Host, Multi=None,Roles=None, MessageID=None, ChannelID=None, Responses=None, **kwargs):
@@ -150,7 +157,7 @@ async def edit_message(self, ctx, message_id: int):
         "title": f"{self.Quantity}x {self.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": "https://emojiisland.com/cdn/shop/products/4_large.png",
+            "url": self.PartyTypeImages[self.Type],
             "height": 0,
             "width": 0
         },
@@ -227,7 +234,7 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
         "title": f"{party.Quantity}x {party.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": "https://emojiisland.com/cdn/shop/products/4_large.png",
+            "url": party.PartyTypeImages[party.Type],
             "height": 0,
             "width": 0
         },
@@ -344,9 +351,9 @@ async def on_component(event: Component):
     name="id",
     description="ID of party",
     required=True,
-    opt_type=OptionType.STRING
+    opt_type=OptionType.INTEGER
 )
-async def repost(ctx: SlashContext, id: str):
+async def repost(ctx: SlashContext, id: int):
     result = parties_collection.find_one({"ID": id})
     party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
     get_time()
@@ -355,7 +362,7 @@ async def repost(ctx: SlashContext, id: str):
         "title": f"{party.Quantity}x {party.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": "https://emojiisland.com/cdn/shop/products/4_large.png",
+            "url": party.PartyTypeImages[party.Type],
             "height": 0,
             "width": 0
         },
@@ -399,9 +406,9 @@ async def repost(ctx: SlashContext, id: str):
     name="id",
     description="ID of party",
     required=True,
-    opt_type=OptionType.STRING
+    opt_type=OptionType.INTEGER
 )
-async def notify(ctx: SlashContext, id: str):
+async def notify(ctx: SlashContext, id: int):
     user_list = []
 
     result = parties_collection.find_one({"ID": id})
