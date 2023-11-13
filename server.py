@@ -2,9 +2,11 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from interactions import Client, Intents, listen, slash_command, SlashContext, OptionType, slash_option, ActionRow, Button, ButtonStyle, StringSelectMenu
 from interactions.api.events import Component
+import os
+from party_type import PartyTypeInfo, get_roles_list, resolve_party_type
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import os
+
 
 # Set environment variables
 token= os.environ.get("DISCORD_TOKEN")
@@ -28,10 +30,6 @@ parties_collection = db["parties"]
 # Create a sequence collection
 sequence_collection = db['sequence']
 
-# Initialize sequence
-if 'item_id' not in sequence_collection.index_information():
-    sequence_collection.insert_one({'ID': 'item_id', 'seq': 0})
-
 # Get next value in sequence
 def get_next_sequence_value(sequence_name):
     result = sequence_collection.find_one_and_update(
@@ -52,61 +50,13 @@ def get_time():
 
 # Party class
 class Party:
-    PartyTypeRoles = {
-        "Cake": {
-            "Starter": ["Open"],
-            "Batter": ["Open"]*3,
-            "Froster": ["Open"],
-            "Leafer": ["Open"]*4,
-            "Fruit Froster": ["Open"]*3,
-            "Oven/Spreader": ["Open"]*3,
-            "Flexible": ["Open"]*4,
-        },
-        "Chili Oil Dumpling": {
-            "Starter": ["Open"],
-            "Meat": ["Open"],
-            "Vegetable": ["Open"],
-            "Wheat": ["Open"],
-            "Rice": ["Open"],
-            "Pepper": ["Open"],
-            "Oil": ["Open"],
-            "Overprep": ["Open"]*4
-        }
-    }
-
-    PartyTypeIngredients = {
-        "Cake": {
-            "Starter": ":blueberries: Blueberries",
-            "Batter": ":butter: Butter, :egg: Eggs, <:flour:1168232067197317130> Flour",
-            "Froster": ":milk: Milk, :butter: Butter",
-            "Leafer": ":leaves: Sweet Leaves",
-            "Fruit Froster": ":apple: Any Fruit, <:sugar:1171830932513234974> Sugar",
-            "Flexible": "Ingredients TBD"
-        },
-        "Chili Oil Dumpling": {
-            "Starter": "Spice Sprouts",
-            "Meat": ":cut_of_meat: Any Red Meat",
-            "Vegetable": ":potato: Any Vegetable",
-            "Wheat": "<:wheat:1172680400276029541> Wheat",
-            "Rice": ":rice: Rice",
-            "Pepper": ":hot_pepper: Spicy Pepper",
-            "Oil": "<:cooking_oil:1172680846856159263> Cooking Oil",
-            "Overprep": "Any ingredient above"
-        }
-    }
-
-    PartyTypeImages = {
-        "Cake": "https://palia.wiki.gg/images/8/81/Celebration_Cake.png",
-        "Chili Oil Dumpling": "https://palia.wiki.gg/images/c/c1/Chili_Oil_Dumplings.png"
-    }
-
     def __init__(self, ID, Type, Quantity, Host, Multi=None,Roles=None, MessageID=None, ChannelID=None, Responses=None, **kwargs):
         self.ID = ID
         self.Type = Type
         self.Quantity = Quantity
         self.Host = Host
         self.Multi = Multi if Multi is not None else True
-        self.Roles = Roles if Roles is not None else self.PartyTypeRoles[Type]
+        self.Roles = Roles if Roles is not None else PartyTypeInfo[Type]["Roles"]
         self.Roles.update(kwargs)
         self.MessageID = MessageID if MessageID is not None else ""
         self.ChannelID = ChannelID if ChannelID is not None else ""
@@ -115,6 +65,9 @@ class Party:
     def __str__(self):
         return f"Party(ID={self.ID}, Type={self.Type}, Quantity={self.Quantity}, Host={self.Host}, Multi={self.Multi}, Roles={self.Roles}, MessageID={self.MessageID}, ChannelID={self.ChannelID}, Responses={self.Responses})"
     
+    def get_party_type(Type):
+        return PartyTypeInfo.get(Type, {})
+
     def has_user_signed_up(self, user_id):
         for role in self.Roles.values():
             if user_id in role:
@@ -138,7 +91,7 @@ class Party:
     def generate_description(self):
         description = f"Hosted by {self.Host}\n\n"
         
-        required_ingredients = self.PartyTypeIngredients.get(self.Type, {})
+        required_ingredients = PartyTypeInfo.get(self.Type, {}).get("Ingredients", {})
 
         for role, members in self.Roles.items():
             description += f"**{role}:** {required_ingredients.get(role, 'No ingredients required')}\n"
@@ -157,7 +110,7 @@ async def edit_message(self, ctx, message_id: int):
         "title": f"{self.Quantity}x {self.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": self.PartyTypeImages[self.Type],
+            "url": PartyTypeInfo.get(self.Type, {}).get("Image", ""),
             "height": 0,
             "width": 0
         },
@@ -215,12 +168,11 @@ async def edit_message(self, ctx, message_id: int):
 async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: bool = True):
     global party
 
-    if "cake" in type.lower():
-        type = "Cake"
-    elif "chili" in type.lower() or "dumpling" in type.lower():
-        type = "Chili Oil Dumpling"
+    resolved_party_type = resolve_party_type(type)
+    if resolved_party_type:
+        type = resolved_party_type
     else:
-        error_post = await ctx.send(f"<@{ctx.author.id}>, sorry {type} party type is not supported.\nThe following party types are currently supported: Cake, Chili Oil Dumpling.")
+        error_post = await ctx.send(f"<@{ctx.author.id}>, sorry {type} party type is not supported.\nThe following party types are currently supported: Bouillabaisse, Celebration Cake, Chili Oil Dumpling, Crab Pot Pie.")
         await asyncio.sleep(30)
         await error_post.delete()
         return
@@ -234,7 +186,7 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
         "title": f"{party.Quantity}x {party.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": party.PartyTypeImages[party.Type],
+            "url": PartyTypeInfo.get(party.Type, {}).get("Image", ""),
             "height": 0,
             "width": 0
         },
@@ -309,10 +261,7 @@ async def on_component(event: Component):
             if party.has_user_signed_up(f"<@{ctx.author.id}>") and party.Multi == False:
                 await ctx.author.send("You have already signed up for a role. Please remove your current role to switch roles.")
             else:
-                if party.Type == "Cake":
-                    roles_list = "Starter", "Batter", "Froster", "Leafer", "Fruit Froster", "Oven/Spreader","Flexible"
-                elif party.Type == "Chili Oil Dumpling":
-                    roles_list = "Starter", "Meat", "Vegetable", "Wheat", "Rice", "Pepper", "Oil", "Overprep"
+                roles_list = get_roles_list(party.Type)
                 components = StringSelectMenu(
                     roles_list,
                     placeholder="Choose your role",
@@ -366,7 +315,7 @@ async def repost(ctx: SlashContext, id: int):
         "title": f"{party.Quantity}x {party.Type} Party",
         "description": description,
         "thumbnail": {
-            "url": party.PartyTypeImages[party.Type],
+            "url": PartyTypeInfo.get(party.Type, {}).get("Image", ""),
             "height": 0,
             "width": 0
         },
