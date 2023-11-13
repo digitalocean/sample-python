@@ -11,8 +11,10 @@ The bot has the following slash commands:
 - multi (Optional) - Whether player can have multiple roles (true/false)
 
 `/party repost` - reposts current Palia party
+- id (Required) - ID of party
 
 `/party notify` - notify users that party is starting
+- id (Required) - ID of party
 
 The currently supported party types are:
 - Apple Cake
