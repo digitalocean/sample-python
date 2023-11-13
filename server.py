@@ -5,7 +5,6 @@ from interactions.api.events import Component
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import os
-import shortuuid
 
 # Set environment variables
 token= os.environ.get("DISCORD_TOKEN")
@@ -25,6 +24,22 @@ except Exception as e:
 # Set database and collection
 db = mongo.chapaa
 parties_collection = db["parties"]
+
+# Create a sequence collection
+sequence_collection = db['sequence']
+
+# Initialize sequence
+if 'item_id' not in sequence_collection.index_information():
+    sequence_collection.insert_one({'ID': 'item_id', 'seq': 0})
+
+# Get next value in sequence
+def get_next_sequence_value(sequence_name):
+    result = sequence_collection.find_one_and_update(
+        {'ID': sequence_name},
+        {'$inc': {'seq': 1}},
+        return_document=True
+    )
+    return result['seq']
 
 def get_time():
     global now
@@ -202,8 +217,10 @@ async def create(ctx: SlashContext, type: str, quantity: str, host: str, multi: 
         await asyncio.sleep(30)
         await error_post.delete()
         return
+    
+    next_id = get_next_sequence_value('item_id')
 
-    party = Party(ID=str(shortuuid.uuid()), Type=type, Quantity=quantity, Host=host, Multi=multi, Roles=None)
+    party = Party(ID=next_id, Type=type, Quantity=quantity, Host=host, Multi=multi, Roles=None)
     description = party.generate_description()
     get_time()
     embed = {
