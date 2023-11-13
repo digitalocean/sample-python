@@ -284,9 +284,13 @@ async def on_component(event: Component):
 
     async def retrieve_party(message_id, action):
         nonlocal party
-        if action == "signup" or action == "unsignup":
+        if action == "signup":
             result = parties_collection.find_one({"MessageID": message_id})
-            party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=None, MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+            party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
+            return party
+        if action == "unsignup":
+            result = parties_collection.find_one({"MessageID": message_id})
+            party = Party(ID=result['ID'], Type=result['Type'], Quantity=result['Quantity'], Host=result['Host'], Multi=result['Multi'], Roles=result['Roles'], MessageID=result['MessageID'], ChannelID=result['ChannelID'], Responses=result['Responses'])
             return party
         elif action == "role":
             result = parties_collection.find_one({"Responses": {"$elemMatch": {"$eq": message_id}}})
