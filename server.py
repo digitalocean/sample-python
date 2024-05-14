@@ -1,19 +1,18 @@
-import os
-import http.server
-import socketserver
+from flask import Flask, render_template
+from datetime import datetime, timedelta
 
-from http import HTTPStatus
+app = Flask(__name__)
 
+def needs_pill_today():
+	today = datetime.now().date()
+	start_date = datetime(2024, 5, 12)
+	days_since_start = (today - start_date).days
+	return days_since_start % 2 == 0
 
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(HTTPStatus.OK)
-        self.end_headers()
-        msg = 'Hello! you requested %s' % (self.path)
-        self.wfile.write(msg.encode())
+@app.route('/')
+def index():
+	needs_pill = needs_pill_today()
+	return render_template('index.html', needs_pill=needs_pill)
 
-
-port = int(os.getenv('PORT', 80))
-print('Listening on port %s' % (port))
-httpd = socketserver.TCPServer(('', port), Handler)
-httpd.serve_forever()
+if __name__ == '__main__':
+	app.run(debug=True)
