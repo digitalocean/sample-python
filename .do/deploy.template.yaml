@@ -6,5 +6,5 @@ spec:
       branch: main
       repo_clone_url: https://github.com/digitalocean/sample-python.git
     instance_count: 1
-    instance_size_slug: apps-s-1vcpu-0.5gb  
+    instance_size_slug: apps-s-1vcpu-0.5gb
     name: sample-python
