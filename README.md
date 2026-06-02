@@ -1,56 +1,58 @@
-## Getting Started
+## Get Started
 
-We provide a sample app using Python that you can deploy on App Platform. These steps will get this sample application running for you using App Platform.
+DigitalOcean provides a sample Python application you can deploy to App Platform. You can deploy the app without modification, or add it to your GitHub account so that you can customize it and use automatic redeployments when you make changes.
 
-**Note: Following these steps may result in charges for the use of DigitalOcean services.**
+**Note**: Deploying a sample application may result in charges for the use of DigitalOcean resources.
 
 ### Requirements
 
-* You need a DigitalOcean account. If you don't already have one, you can sign up at https://cloud.digitalocean.com/registrations/new.
+* A DigitalOcean account. You can [sign up in the Control Panel](https://cloud.digitalocean.com/registrations/new).
 
-## Deploying the App
+## Deploy the App
 
-Click this button to deploy the app to the DigitalOcean App Platform. If you are not logged in, you will be prompted to log in with your DigitalOcean account.
+Click **Deploy to DigitalOcean** to deploy the app to App Platform. If prompted, log in to your DigitalOcean account.
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/digitalocean/sample-python/tree/main)
 
-Using this button disables the ability to automatically re-deploy your app when pushing to a branch or tag in your repository as you are using this repo directly.
+App Platform opens the **Create an App** page. To deploy the app without modification, complete the wizard, and then click **Create app**.
 
-If you want to automatically re-deploy your app, [fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the GitHub repository to your account so that you have a copy of it stored to the cloud. Click the **Fork** button in the GitHub repository and follow the on-screen instructions.
+To customize the app or use automatic redeployments, click the **Git source** link **[digitalocean/sample-python](https://github.com/digitalocean/sample-python)**. When the GitHub repo opens, click the **Fork** button in the upper right, and then follow the on-screen instructions. To learn more about forking repos, see the [GitHub documentation](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo).
 
-After forking the repo, you should now be viewing this README in your own GitHub org (e.g. `https://github.com/<your-org>/sample-python`). To deploy the new repo, visit https://cloud.digitalocean.com/apps and click **Create App**. Then, click **GitHub**, select the repository you created and select the `main` branch. App Platform will inspect the code, automatically detect the kind of component to create, and use the correct buildpack to create and deploy a container.
+After forking the repo, you can view the same README in your own GitHub org, for example, at `https://github.com/<your-org>/sample-python`.
 
-After clicking the **Deploy to DigitalOcean** button or completing the instructions above to fork the repo, follow these steps:
+To deploy the new repo, go to the [App Platform page in the Control Panel](https://cloud.digitalocean.com/apps) and click the **Create App** button. On the **Create an App** page, leave GitHub selected. Under **Repository**, select your newly forked repo. Ensure that your branch is set to **main** and **Autodeploy** is selected, and then click **Next**.
 
-1. Configure the app such as specifying HTTP routes, environment variables or adding a database.
-1. Provide a name for your app and select which region you want to deploy your app to and click **Next**. The closest region to you should be selected by default. All App Platform apps are routed through a global CDN. So this will not affect your app performance, unless it needs to talk to external services.
-1. On the following screen, leave all the fields as they are and click **Next**.
-1. Confirm your **Plan** settings and how many containers you want to launch and click **Launch Basic/Pro App**.
-1. You should see a "Building..." progress indicator. You can click **View Logs** to see more details of the build.
-1. It can take a few minutes for the build to finish, but you can follow the progress in the **Deployments** tab.
-1. Once the build completes successfully, click the **Live App** link in the header and you should see your running application in a new tab, displaying the home page.
+The page updates and displays the **Resource settings** for your app. Click **Edit** beside a setting to make changes, such as adding an HTTP route.
 
-### Making Changes to Your App
+Below the **Resource settings**, you can add a database to your app if needed, update the default datacenter region (App Platform selects the region closest to you by default), or connect the app to the VPC network. Unless your app needs to interface with external services, the region you select does not affect performance because all App Platform apps are routed through a global CDN.
 
-If you followed the steps to fork the repo and used your own copy when deploying the app, you can push changes to your fork and see App Platform automatically re-deploy the update to your app. During these automatic deployments, your application will never pause or stop serving request because App Platform offers zero-downtime deployments.
+Provide a name for your app and then review your app's settings and monthly cost. When finished, click **Create app**.
+
+The **Activity** tab opens and shows the progress of the deployment. It can take a few minutes for the deployment to finish.
+
+When the deployment completes, click the **Live App** button to open the home page of your running application in a new tab.
+
+## Make Changes to Your App
+
+If you forked the repo, you can make changes to your copy of the sample app. Pushing a new change automatically redeploys the app to App Platform with zero downtime.
 
 Here's an example code change you can make for this app:
 
-1. Edit `server.py` and replace "Hello!" on line 12 with a different greeting
-1. Commit the change to the `main` branch. Normally it's a better practice to create a new branch for your change and then merge that branch to `main` after review, but for this demo you can commit to the `main` branch directly.
-1. Visit https://cloud.digitalocean.com/apps and navigate to your sample app.
-1. You should see a "Building..." progress indicator, just like when you first created the app.
-1. Once the build completes successfully, click the **Live App** link in the header and you should see your updated application running. You may need to force refresh the page in your browser (e.g. using **Shift+Reload**).
+* Edit `server.py` and replace "Hello!" on line 12 with a different greeting.
+* You can commit the changes to the `main` branch or create a new branch for your change and then merge the branch to `main` after review.
+* Go to the [Control Panel](https://cloud.digitalocean.com/apps) and navigate to your sample app. You should see a progress indicator for the automatic redeployment that your changes triggered.
+* Once the deployment completes, click the **Live App** link in the header to see your updated application running. You may need to force refresh the page in your browser (e.g. using **Shift** + **Reload**).
 
-### Learn More
+## Learn More
 
-You can learn more about the App Platform and how to manage and update your application at https://www.digitalocean.com/docs/app-platform/.
+To learn more about App Platform and how to manage and update your application, see [the App Platform documentation](https://docs.digitalocean.com/products/app-platform/).
 
-## Deleting the App
+## Delete the App
 
-When you no longer need this sample application running live, you can delete it by following these steps:
-1. Visit the Apps control panel at https://cloud.digitalocean.com/apps.
+When you no longer need this sample application, you can delete it as follows:
+
+1. Go to the [App Platform page in the Control Panel](https://cloud.digitalocean.com/apps).
 2. Navigate to the sample app.
-3. In the **Settings** tab, click **Destroy**.
+3. On the **Settings** page, click **Destroy**.
 
-**Note: If you do not delete your app, charges for using DigitalOcean services will continue to accrue.**
+**Note**: If you do not delete your app, charges for using DigitalOcean services continue to accrue.
