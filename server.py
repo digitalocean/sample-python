@@ -12,24 +12,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
         html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>MBC Status</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; color: #333; }}
-        h1 {{ color: #0066cc; }}
-        p {{ font-size: 1.2em; }}
-    </style>
-</head>
-<body>
-    <h1>Hello Buddy!!!!!</h1>
-    <p>MBC HERE ON 30TH JUL AGAIN NOW 31ST JULY</p>
-    <p><strong>Path requested:</strong> {self.path}</p>
-</body>
-</html>
-"""
-self.wfile.write(html_content.encode("utf-8"))
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>MBC Status</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; color: #333; }}
+                h1 {{ color: #0066cc; }}
+                p {{ font-size: 1.2em; }}
+            </style>
+        </head>
+        <body>
+            <h1>Hello Buddy!!!!!</h1>
+            <p>MBC HERE ON 30TH JUL AGAIN NOW 31ST JULY</p>
+            <p><strong>Path requested:</strong> {self.path}</p>
+        </body>
+        </html>
+        """
+        self.wfile.write(html_content.encode("utf-8"))
 
 # To run the server
 if __name__ == "__main__":
