@@ -32,10 +32,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(html_content.encode("utf-8"))
 
 # To run the server
-if __name__ == "__main__":
-    server = HTTPServer(("localhost", 8080), MyHandler)
-    print("Server running on http://localhost:8080")
-    server.serve_forever()
+# if __name__ == "__main__":
+#    server = HTTPServer(("localhost", 8080), MyHandler)
+#    print("Server running on http://localhost:8080")
+#    server.serve_forever()
 
 # port = int(os.getenv('PORT', 80))
 # print('Listening on port %s' % (port))
