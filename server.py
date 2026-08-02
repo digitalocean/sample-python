@@ -39,7 +39,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 host = os.getenv("HOST", "0.0.0.0")
 port = int(os.getenv("PORT", 8080))
-server = HTTPServer((host, port), MyHandler)
+server = HTTPServer((host, port), Handler)
 
 
 # port = int(os.getenv('PORT', 80))
