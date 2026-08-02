@@ -24,7 +24,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         </head>
         <body>
             <h1>Hello Buddy!!!!!</h1>
-            <p>MBC HERE ON 30TH JUL AGAIN NOW 31ST JULY</p>
+            <p>MBC HERE ON 30TH JUL AGAIN NOW 3RD AUG</p>
             <p><strong>Path requested:</strong> {self.path}</p>
         </body>
         </html>
@@ -36,6 +36,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 #    server = HTTPServer(("localhost", 8080), MyHandler)
 #    print("Server running on http://localhost:8080")
 #    server.serve_forever()
+
+host = os.getenv("HOST", "0.0.0.0")
+port = int(os.getenv("PORT", 8080))
+server = HTTPServer((host, port), MyHandler)
+
 
 # port = int(os.getenv('PORT', 80))
 # print('Listening on port %s' % (port))
